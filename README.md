@@ -1,2 +1,2 @@
-furai
-=====
+Project Furai
+=============
