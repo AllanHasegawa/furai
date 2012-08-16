@@ -21,24 +21,63 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+#ifndef FURAI_WINDOW_H_
+#define FURAI_WINDOW_H_
+
+#include <egl/egl.h>
 
 namespace furai {
 
-class WindowListener {
+class Window {
  public:
-  virtual ~WindowListener() {
+  EGLContext context() const {
+    return context_;
   }
-  ;
 
-  virtual void OnCreate() = 0;
-  virtual void OnResume() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const int width, const int height) = 0;
-  virtual void OnPause() = 0;
-  virtual void OnDestroy() = 0;
+  void set_context(EGLContext context) {
+    context_ = context;
+  }
+
+  EGLDisplay display() const {
+    return display_;
+  }
+
+  void set_display(EGLDisplay display) {
+    display_ = display;
+  }
+
+  int32_t height() const {
+    return height_;
+  }
+
+  void set_height(int32_t height) {
+    height_ = height;
+  }
+
+  EGLSurface surface() const {
+    return surface_;
+  }
+
+  void set_surface(EGLSurface surface) {
+    surface_ = surface;
+  }
+
+  int32_t width() const {
+    return width_;
+  }
+
+  void set_width(int32_t width) {
+    width_ = width;
+  }
+
+ private:
+  EGLDisplay display_;
+  EGLSurface surface_;
+  EGLContext context_;
+  int32_t width_;
+  int32_t height_;
 };
 
 }  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+
+#endif /* FURAI_WINDOW_H_ */

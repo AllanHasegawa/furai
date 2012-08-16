@@ -24,30 +24,33 @@
 #ifndef FURAI_ANDROIDAPPLICATION_H_
 #define FURAI_ANDROIDAPPLICATION_H_
 
+#include <furai/backends/android/core/jniglue/furai_android_native_app_glue.h>
 #include <jni.h>
 #include <android/native_activity.h>
+#include <furai/core/Application.h>
+#include <furai/core/WindowListener.h>
 
 namespace furai {
 
-class AndroidApplication {
+class AndroidApplication : public Application {
  public:
-  AndroidApplication();
+  static AndroidApplication* instance_;
+
+  AndroidApplication(const WindowListener* window_listener, android_app* app);
   virtual ~AndroidApplication();
 
- protected:
-  static void OnDestroy(ANativeActivity* activity);
-  static void OnStart(ANativeActivity* activity);
-  static void OnResume(ANativeActivity* activity);
-  static void OnSaveInstanceState(ANativeActivity* activity);
-  static void OnPause(ANativeActivity* activity);
-  static void OnStop(ANativeActivity* activity);
-  static void OnConfigurationChanged(ANativeActivity* activity);
-  static void OnLowMemory(ANativeActivity* activity);
-  static void OnWindowFocusChanged(ANativeActivity* activity);
-  static void OnNativeWindowCreated(ANativeActivity* activity);
-  static void OnNativeWindowDestroyed(ANativeActivity* activity);
-  static void OnInputQueueCreated(ANativeActivity* activity);
-  static void OnInputQueueDestroyed(ANativeActivity* activity);
+  void start();
+
+ private:
+  android_app* android_app_;
+  const WindowListener* window_listener_;
+  ANativeWindow* native_window_;
+
+  void InitializeNativeWindow();
+  void DestroyNativeWindow();
+  void DrawFrame();
+  static void OnCommand(struct android_app* app, int32_t command);
+  static void OnInputEvent();
 };
 
 }  // namespace furai

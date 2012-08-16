@@ -21,24 +21,38 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+#ifndef FURAI_MYCYCLE_H_
+#define FURAI_MYCYCLE_H_
 
-namespace furai {
+#include <furai/core/WindowListener.h>
 
-class WindowListener {
+class MyCycle : public furai::WindowListener {
  public:
-  virtual ~WindowListener() {
-  }
-  ;
+  MyCycle() {
 
-  virtual void OnCreate() = 0;
-  virtual void OnResume() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const int width, const int height) = 0;
-  virtual void OnPause() = 0;
-  virtual void OnDestroy() = 0;
+  }
+  ~MyCycle() {
+
+  }
+
+  void OnCreate() {
+
+  }
+  void OnResume() {
+
+  }
+  void OnDraw(const double delta_time) {
+
+  }
+  void OnResize(const int width, const int height) {
+
+  }
+  void OnPause() {
+
+  }
+  void OnDestroy() {
+
+  }
 };
 
-}  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+#endif /* FURAI_MYCYCLE_H_ */

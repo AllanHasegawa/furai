@@ -21,24 +21,28 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+#ifndef FURAI_APPLICATION_H_
+#define FURAI_APPLICATION_H_
+
+#include <egl/egl.h>
+#include <furai/core/Window.h>
 
 namespace furai {
 
-class WindowListener {
+class Application {
  public:
-  virtual ~WindowListener() {
-  }
-  ;
+  virtual ~Application() {};
 
-  virtual void OnCreate() = 0;
-  virtual void OnResume() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const int width, const int height) = 0;
-  virtual void OnPause() = 0;
-  virtual void OnDestroy() = 0;
+  virtual void start() = 0;
+
+  const Window* get_window() {
+    return &this->window_;
+  }
+
+ protected:
+  Window window_;
 };
 
 }  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+
+#endif /* FURAI_APPLICATION_H_ */

@@ -21,7 +21,7 @@
  -----------------------------------------------------------------------------
  */
 
-#include <furai/backends/android/jniglue/furai_android_native_app_glue.h>
+#include <furai/backends/android/core/jniglue/furai_android_native_app_glue.h>
 #include <jni.h>
 #include <errno.h>
 

@@ -21,24 +21,16 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+//#include <furai/backends/android/jniglue/furai_android_native_app_glue.h>
+#include <furai/core/Application.h>
+#include <furai/backends/android/core/AndroidApplication.h>
+#include <furai/backends/android/core/jniglue/MyCycle.h>
+#include <furai/backends/android/core/jniglue/furai_android_native_app_glue.h>
+#include <android/native_activity.h>
 
-namespace furai {
-
-class WindowListener {
- public:
-  virtual ~WindowListener() {
-  }
-  ;
-
-  virtual void OnCreate() = 0;
-  virtual void OnResume() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const int width, const int height) = 0;
-  virtual void OnPause() = 0;
-  virtual void OnDestroy() = 0;
-};
-
-}  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+void android_main(struct android_app *app) {
+  furai::WindowListener *my_cycle = new MyCycle();
+  furai::Application* application = new furai::AndroidApplication(my_cycle,
+                                                                  app);
+  application->start();
+}
