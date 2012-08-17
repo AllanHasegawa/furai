@@ -21,34 +21,42 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDAPPLICATION_H_
-#define FURAI_ANDROIDAPPLICATION_H_
-
-#include <android_native_app_glue.h>
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
+#ifndef FURAI_LOG_H_
+#define FURAI_LOG_H_
 
 namespace furai {
 
-class AndroidApplication : public Application {
- public:
-  static AndroidApplication* instance_;
-
-  AndroidApplication(WindowListener* window_listener, android_app* app);
-  virtual ~AndroidApplication();
-
-  void start();
-
- private:
-  android_app* android_app_;
-
-  void InitializeNativeWindow();
-  void DestroyNativeWindow();
-  void DrawFrame();
-  static void OnCommand(struct android_app* app, int32_t command);
-  static void OnInputEvent();
+enum LogLevel {
+  LOG_NONE = 0,
+  LOG_ERROR = 1,
+  LOG_INFO = 2,
+  LOG_VERBOSE = 3
 };
 
-}  // namespace furai
+class Log {
+ public:
+  virtual ~Log() {
+  }
+  ;
 
-#endif /* FURAI_ANDROIDAPPLICATION_H_ */
+  void set_log_level(const LogLevel log_level) {
+    Log::log_level_ = log_level;
+  }
+
+  LogLevel log_level() {
+    return Log::log_level_;
+  }
+
+  virtual void LogE(const char *fmt, ...) = 0;
+
+  virtual void LogI(const char *fmt, ...) = 0;
+
+  virtual void LogV(const char *fmt, ...) = 0;
+
+ protected:
+  LogLevel log_level_;
+};
+
+}  // namespace
+
+#endif /* FURAI_LOG_H_ */

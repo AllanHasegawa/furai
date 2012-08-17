@@ -21,19 +21,46 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_CONFIG_H_
-#define FURAI_CONFIG_H_
-
 #include <android/log.h>
+#include "furai/backends/android/log/AndroidLog.h"
 
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "Furai", __VA_ARGS__))
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "Furai", __VA_ARGS__))
+namespace furai {
 
-/* For debug builds, always enable the debug traces in this library */
-#ifndef NDEBUG
-#  define LOGV(...)  ((void)__android_log_print(ANDROID_LOG_VERBOSE, "Furai", __VA_ARGS__))
-#else
-#  define LOGV(...)  ((void)0)
-#endif
+AndroidLog::AndroidLog() {
+  this->tag_ = new char[6];
+  this->tag_[0] = 'F';
+  this->tag_[1] = 'u';
+  this->tag_[2] = 'r';
+  this->tag_[3] = 'a';
+  this->tag_[4] = 'i';
+  this->tag_[5] = '\0';
+}
 
-#endif /* FURAI_CONFIG_H_ */
+AndroidLog::~AndroidLog() {
+  delete this->tag_;
+}
+
+void AndroidLog::LogE(const char *fmt, ...) {
+  if (this->log_level_ >= LOG_INFO) {
+    va_list args;
+    va_start(args, fmt);
+    __android_log_print(ANDROID_LOG_INFO, this->tag_, fmt, args);
+  }
+}
+void AndroidLog::LogI(const char *fmt, ...) {
+  if (this->log_level_ >= LOG_INFO) {
+    va_list args;
+    va_start(args, fmt);
+    __android_log_print(ANDROID_LOG_INFO, this->tag_, fmt, args);
+  }
+}
+
+void AndroidLog::LogV(const char *fmt, ...) {
+  if (this->log_level_ >= LOG_INFO) {
+    va_list args;
+    va_start(args, fmt);
+    __android_log_print(ANDROID_LOG_INFO, this->tag_, fmt, args);
+  }
+}
+
+}  // namespace furai

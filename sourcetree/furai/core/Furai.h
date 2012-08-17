@@ -21,34 +21,22 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDAPPLICATION_H_
-#define FURAI_ANDROIDAPPLICATION_H_
+#ifndef FURAI_FURAI_H_
+#define FURAI_FURAI_H_
 
-#include <android_native_app_glue.h>
+#include <furai/log/Log.h>
 #include <furai/core/Application.h>
 #include <furai/core/WindowListener.h>
 
 namespace furai {
 
-class AndroidApplication : public Application {
+class Furai {
  public:
-  static AndroidApplication* instance_;
-
-  AndroidApplication(WindowListener* window_listener, android_app* app);
-  virtual ~AndroidApplication();
-
-  void start();
-
- private:
-  android_app* android_app_;
-
-  void InitializeNativeWindow();
-  void DestroyNativeWindow();
-  void DrawFrame();
-  static void OnCommand(struct android_app* app, int32_t command);
-  static void OnInputEvent();
+  static Application* APP;
+  static Log* LOG;
+  static WindowListener* WINDOW_LISTENER;
 };
 
-}  // namespace furai
+}  // namespace
 
-#endif /* FURAI_ANDROIDAPPLICATION_H_ */
+#endif /* FURAI_FURAI_H_ */

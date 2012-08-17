@@ -24,10 +24,11 @@
 #ifndef FURAI_HELLOTRIANGLE_H_
 #define FURAI_HELLOTRIANGLE_H_
 
-#include <furai/core/WindowListener.h>
-#include <furai/backends/android/core/config.h>
 
 #include <GLES/gl.h>
+
+#include <furai/core/WindowListener.h>
+#include <furai/core/Furai.h>
 
 class HelloTriangle : public furai::WindowListener {
  public:
@@ -39,13 +40,13 @@ class HelloTriangle : public furai::WindowListener {
   }
 
   void OnCreate() {
-    LOGV("On_Create");
+    furai::Furai::LOG->LogV("On_Create");
   }
   void OnResume() {
-    LOGV("On_Resume");
+    furai::Furai::LOG->LogV("On_Resume");
   }
   void OnDraw(const double delta_time) {
-    LOGV("On_Draw");
+    furai::Furai::LOG->LogV("On_Draw");
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GLfloat vertices[] =
@@ -64,13 +65,16 @@ class HelloTriangle : public furai::WindowListener {
     glDisableClientState(GL_VERTEX_ARRAY);
   }
   void OnResize(const int width, const int height) {
-    LOGV("On_Resize %dpx by %dpx", width, height);
+    furai::Furai::LOG->LogV("On_Resize %dpx by %dpx", width, height);
+    glClearColor(0, 0, 0, 1);
   }
+
   void OnPause() {
-    LOGV("On_Pause");
+    furai::Furai::LOG->LogV("On_Pause");
   }
+
   void OnDestroy() {
-    LOGV("On_Destroy");
+    furai::Furai::LOG->LogV("On_Destroy");
   }
 };
 

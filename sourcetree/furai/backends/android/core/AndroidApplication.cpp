@@ -20,13 +20,16 @@
  limitations under the License.
  -----------------------------------------------------------------------------
  */
+#include <android_native_app_glue.h>
+
 #include <EGL/egl.h>
 #include <GLES/gl.h>
 #include <android/native_activity.h>
 
-#include <furai/backends/android/core/jniglue/jniglue.h>
 #include <furai/backends/android/core/AndroidApplication.h>
-#include <furai/backends/android/core/config.h>
+#include <furai/log/Log.h>
+#include <furai/backends/android/log/AndroidLog.h>
+#include <furai/core/Furai.h>
 
 namespace furai {
 
@@ -34,13 +37,23 @@ AndroidApplication* AndroidApplication::instance_ = NULL;
 
 AndroidApplication::AndroidApplication(WindowListener* window_listener,
                                        android_app* app) {
-  this->window_listener_ = window_listener;
+
   this->android_app_ = app;
-  AndroidApplication::instance_ = this;
+
+  /*
+   * Populate the GLOBAL variables from Furai!
+   *
+   * Note however, the backend Application class still needs to take
+   * care of them :)
+   */
+
+  Furai::WINDOW_LISTENER = this->window_listener_ = window_listener;
+  Furai::LOG = this->log_ = new AndroidLog();
+  Furai::APP = AndroidApplication::instance_ = this;
 }
 
 AndroidApplication::~AndroidApplication() {
-
+  delete this->log_;
 }
 
 void AndroidApplication::start() {
@@ -148,7 +161,7 @@ void AndroidApplication::InitializeNativeWindow() {
   context = eglCreateContext(display, config, NULL, NULL);
 
   if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-    LOGI("Unable to eglMakeCurrent");
+    Furai::LOG->LogI("Unable to eglMakeCurrent");
     return;
   }
 
@@ -207,10 +220,11 @@ void AndroidApplication::DrawFrame() {
   eglSwapBuffers(this->window_.display(), this->window_.surface());
 }
 
-void AndroidApplication::OnCommand(struct android_app* app, int32_t command) {
+void AndroidApplication::OnCommand(struct android_app* app,
+                                          int32_t command) {
   switch (command) {
     case APP_CMD_RESUME:
-      LOGV("AA: APP_CMD_RESUME");
+      Furai::LOG->LogV("AA: APP_CMD_RESUME");
       AndroidApplication::instance_->window_listener_->OnResume();
       break;
     case APP_CMD_PAUSE:

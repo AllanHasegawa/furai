@@ -15,14 +15,12 @@
  *
  */
 
-#ifndef _FURAI_ANDROID_NATIVE_APP_GLUE_H
-#define _FURAI_ANDROID_NATIVE_APP_GLUE_H
+#ifndef _ANDROID_NATIVE_APP_GLUE_H
+#define _ANDROID_NATIVE_APP_GLUE_H
 
 #include <poll.h>
 #include <pthread.h>
 #include <sched.h>
-
-#include <boost/exception/all.hpp>
 
 #include <android/configuration.h>
 #include <android/looper.h>
@@ -348,4 +346,4 @@ extern void android_main(struct android_app* app);
 }
 #endif
 
-#endif /* _FURAI_ANDROID_NATIVE_APP_GLUE_H */
+#endif /* _ANDROID_NATIVE_APP_GLUE_H */

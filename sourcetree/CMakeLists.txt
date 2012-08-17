@@ -91,6 +91,10 @@ link_directories(${LINK_DIRECTORIES} ${Boost_LIBRARY_DIR})
 ############
 include_directories(${INCLUDE_DIRECTORIES} ${CMAKE_SOURCE_DIR})
 
+if(ANDROID)
+    include_directories(${INCLUDE_DIRECTORIES} "${CMAKE_SOURCE_DIR}/../external/android/native_app_glue")
+endif()
+
 add_subdirectory(furai)
 
 

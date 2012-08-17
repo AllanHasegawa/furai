@@ -24,13 +24,15 @@
 #ifndef FURAI_APPLICATION_H_
 #define FURAI_APPLICATION_H_
 
-#include <egl/egl.h>
+#include <furai/core/WindowListener.h>
 #include <furai/core/Window.h>
+#include <furai/log/Log.h>
 
 namespace furai {
 
 class Application {
  public:
+
   virtual ~Application() {
   }
   ;
@@ -43,6 +45,8 @@ class Application {
 
  protected:
   Window window_;
+  WindowListener* window_listener_;
+  Log* log_;
 };
 
 }  // namespace
