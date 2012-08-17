@@ -25,6 +25,9 @@
 #define FURAI_MYCYCLE_H_
 
 #include <furai/core/WindowListener.h>
+#include <furai/backends/android/core/config.h>
+
+#include <GLES/gl.h>
 
 class MyCycle : public furai::WindowListener {
  public:
@@ -36,22 +39,38 @@ class MyCycle : public furai::WindowListener {
   }
 
   void OnCreate() {
-
+    LOGV("On_Create");
   }
   void OnResume() {
-
+    LOGV("On_Resume");
   }
   void OnDraw(const double delta_time) {
+    LOGV("On_Draw 9");
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GLfloat vertices[] =
+        { -1.f, -1.f, -3.0f, 1.0f, -1.0f, -3.0f, .0f, 1.f, -3.f };
+
+
+    glLoadIdentity();
+
+    glColor4f(1, 0, 0, 1);
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
   }
   void OnResize(const int width, const int height) {
-
+    LOGV("On_Resize %dpx by %dpx", width, height);
   }
   void OnPause() {
-
+    LOGV("On_Pause");
   }
   void OnDestroy() {
-
+    LOGV("On_Destroy");
   }
 };
 

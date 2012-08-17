@@ -24,7 +24,7 @@
 #include <GLES/gl.h>
 #include <android/native_activity.h>
 
-#include <furai/backends/android/core/jniglue/furai_android_native_app_glue.h>
+#include <furai/backends/android/core/jniglue/jniglue.h>
 #include <furai/backends/android/core/AndroidApplication.h>
 #include <furai/backends/android/core/config.h>
 
@@ -32,7 +32,7 @@ namespace furai {
 
 AndroidApplication* AndroidApplication::instance_ = NULL;
 
-AndroidApplication::AndroidApplication(const WindowListener* window_listener,
+AndroidApplication::AndroidApplication(WindowListener* window_listener,
                                        android_app* app) {
   this->window_listener_ = window_listener;
   this->android_app_ = app;
@@ -44,13 +44,9 @@ AndroidApplication::~AndroidApplication() {
 }
 
 void AndroidApplication::start() {
-  // Make sure glue isn't stripped.
-  app_dummy();
 
-  //this->android_app->userData = &engine;
   this->android_app_->onAppCmd = &(AndroidApplication::OnCommand);
   this->android_app_->onInputEvent = NULL;
-  //engine.app = state;
 
   // Prepare to monitor accelerometer
   /*
@@ -121,6 +117,7 @@ void AndroidApplication::InitializeNativeWindow() {
    * Below, we select an EGLConfig with at least 8 bits per color
    * component compatible with on-screen windows
    */
+
   const EGLint attribs[] = { EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_BLUE_SIZE, 8,
       EGL_GREEN_SIZE, 8, EGL_RED_SIZE, 8, EGL_NONE };
   EGLint w, h, dummy, format;
@@ -144,9 +141,10 @@ void AndroidApplication::InitializeNativeWindow() {
    * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
   eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
 
-  ANativeWindow_setBuffersGeometry(this->native_window_, 0, 0, format);
+  ANativeWindow_setBuffersGeometry(this->android_app_->window, 0, 0, format);
 
-  surface = eglCreateWindowSurface(display, config, this->native_window_, NULL);
+  surface = eglCreateWindowSurface(display, config, this->android_app_->window,
+                                   NULL);
   context = eglCreateContext(display, config, NULL, NULL);
 
   if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
@@ -158,22 +156,26 @@ void AndroidApplication::InitializeNativeWindow() {
   eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
   AndroidApplication::instance_->window_.set_display(display);
-  //engine->display = display;
   AndroidApplication::instance_->window_.set_context(context);
-  //engine->context = context;
-  //engine->surface = surface;
   AndroidApplication::instance_->window_.set_surface(surface);
-  //engine->width = w;
   AndroidApplication::instance_->window_.set_width(w);
-  //engine->height = h;
   AndroidApplication::instance_->window_.set_height(h);
-  //engine->state.angle = 0;
 
   // Initialize GL state.
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
   glEnable(GL_CULL_FACE);
   glShadeModel(GL_SMOOTH);
   glDisable(GL_DEPTH_TEST);
+
+  glClearColor(0.3, 0.3, 0.3, 1);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrthof(-1.0, 1.0, -1.0, 1.0f, 0.01, 10000.0);
+  glMatrixMode(GL_MODELVIEW);
+  glViewport(0, 0, w, h);
+
+  this->window_listener_->OnResize(w, h);
 
   return;
 }
@@ -190,27 +192,39 @@ void AndroidApplication::DestroyNativeWindow() {
     }
     eglTerminate(this->window_.display());
   }
-  //engine->animating = 0;
   this->window_.set_display(EGL_NO_DISPLAY);
   this->window_.set_context(EGL_NO_CONTEXT);
   this->window_.set_surface(EGL_NO_SURFACE);
 }
 
 void AndroidApplication::DrawFrame() {
-  if (this->window_.display() == NULL) {
-    // No display.
+  if (this->window_.display() == NULL || this->android_app_->window == NULL) {
     return;
   }
 
-  // Just fill the screen with a color.
-  glClearColor(1, 0, 0, 1);
-  glClear(GL_COLOR_BUFFER_BIT);
+  this->window_listener_->OnDraw(0);
 
   eglSwapBuffers(this->window_.display(), this->window_.surface());
 }
 
 void AndroidApplication::OnCommand(struct android_app* app, int32_t command) {
   switch (command) {
+    case APP_CMD_RESUME:
+      LOGV("AA: APP_CMD_RESUME");
+      AndroidApplication::instance_->window_listener_->OnResume();
+      break;
+    case APP_CMD_PAUSE:
+      AndroidApplication::instance_->window_listener_->OnPause();
+      break;
+    case APP_CMD_START:
+      AndroidApplication::instance_->window_listener_->OnCreate();
+      break;
+    case APP_CMD_DESTROY:
+      AndroidApplication::instance_->window_listener_->OnDestroy();
+      break;
+    case APP_CMD_STOP:
+      AndroidApplication::instance_->window_listener_->OnPause();
+      break;
     case APP_CMD_SAVE_STATE:
       // The system has asked us to save our current state.  Do so.
       //engine->app->savedState = malloc(sizeof(struct saved_state));

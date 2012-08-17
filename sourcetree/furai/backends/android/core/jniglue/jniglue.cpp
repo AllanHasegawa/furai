@@ -23,7 +23,7 @@
 #include <sys/resource.h>
 
 #include <android/log.h>
-#include <furai/backends/android/core/jniglue/furai_android_native_app_glue.h>
+#include <furai/backends/android/core/jniglue/jniglue.h>
 #include <furai/backends/android/core/config.h>
 
 static void free_saved_state(struct android_app* android_app) {

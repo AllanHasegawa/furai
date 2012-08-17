@@ -31,11 +31,13 @@ namespace furai {
 
 class Application {
  public:
-  virtual ~Application() {};
+  virtual ~Application() {
+  }
+  ;
 
   virtual void start() = 0;
 
-  const Window* get_window() {
+  Window* get_window() {
     return &this->window_;
   }
 

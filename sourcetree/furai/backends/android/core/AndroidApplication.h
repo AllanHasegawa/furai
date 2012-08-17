@@ -24,7 +24,7 @@
 #ifndef FURAI_ANDROIDAPPLICATION_H_
 #define FURAI_ANDROIDAPPLICATION_H_
 
-#include <furai/backends/android/core/jniglue/furai_android_native_app_glue.h>
+#include <furai/backends/android/core/jniglue/jniglue.h>
 #include <jni.h>
 #include <android/native_activity.h>
 #include <furai/core/Application.h>
@@ -36,15 +36,14 @@ class AndroidApplication : public Application {
  public:
   static AndroidApplication* instance_;
 
-  AndroidApplication(const WindowListener* window_listener, android_app* app);
+  AndroidApplication(WindowListener* window_listener, android_app* app);
   virtual ~AndroidApplication();
 
   void start();
 
  private:
   android_app* android_app_;
-  const WindowListener* window_listener_;
-  ANativeWindow* native_window_;
+  WindowListener* window_listener_;
 
   void InitializeNativeWindow();
   void DestroyNativeWindow();
