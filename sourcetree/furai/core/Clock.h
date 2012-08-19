@@ -21,36 +21,20 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_APPLICATION_H_
-#define FURAI_APPLICATION_H_
-
-#include <furai/core/WindowListener.h>
-#include <furai/core/Window.h>
-#include <furai/core/Log.h>
-#include <furai/core/Clock.h>
+#ifndef FURAI_CLOCK_H_
+#define FURAI_CLOCK_H_
 
 namespace furai {
 
-class Application {
+class Clock {
  public:
-
-  virtual ~Application() {
+  virtual ~Clock() {
   }
   ;
 
-  virtual void start() = 0;
-
-  Window* window() {
-    return &this->window_;
-  }
-
- protected:
-  Window window_;
-  WindowListener* window_listener_;
-  Log* log_;
-  Clock* clock_;
+  virtual double now_ms() = 0;
 };
 
 }  // namespace
 
-#endif /* FURAI_APPLICATION_H_ */
+#endif /* FURAI_CLOCK_H_ */

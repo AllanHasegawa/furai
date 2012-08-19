@@ -1,5 +1,9 @@
-#####
-# backends/android/core
-#####
+###
+# furai/backends/android/log
+###
 
-add_sources(AndroidApplication.cpp)
+add_sources(
+    AndroidClock.cpp
+    AndroidLog.cpp
+    AndroidApplication.cpp
+    )

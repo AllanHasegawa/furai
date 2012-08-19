@@ -27,18 +27,28 @@
 #include <android/native_activity.h>
 
 #include <furai/backends/android/core/AndroidApplication.h>
-#include <furai/log/Log.h>
-#include <furai/backends/android/log/AndroidLog.h>
+#include <furai/core/Log.h>
+#include <furai/backends/android/core/AndroidLog.h>
 #include <furai/core/Furai.h>
+#include <furai/core/Clock.h>
+#include <furai/backends/android/core/AndroidClock.h>
 
 namespace furai {
 
-AndroidApplication* AndroidApplication::instance_ = NULL;
-
 AndroidApplication::AndroidApplication(WindowListener* window_listener,
                                        android_app* app) {
+  AndroidApplication(window_listener, NULL, app);
+}
 
+AndroidApplication::AndroidApplication(
+    WindowListener* window_listener,
+    AndroidFullWindowListener* full_window_listener, android_app* app) {
+
+  this->log_ = new AndroidLog();
+  this->clock_ = new AndroidClock();
   this->android_app_ = app;
+  this->window_listener_ = window_listener;
+  this->full_window_listener_ = full_window_listener;
 
   /*
    * Populate the GLOBAL variables from Furai!
@@ -47,19 +57,24 @@ AndroidApplication::AndroidApplication(WindowListener* window_listener,
    * care of them :)
    */
 
-  Furai::WINDOW_LISTENER = this->window_listener_ = window_listener;
-  Furai::LOG = this->log_ = new AndroidLog();
-  Furai::APP = AndroidApplication::instance_ = this;
+  Furai::WINDOW_LISTENER = this->window_listener_;
+  Furai::LOG = this->log_;
+  Furai::APP = this;
+  Furai::CLOCK = this->clock_;
+
+  this->paused_ = true;
+  this->stopped_ = true;
 }
 
 AndroidApplication::~AndroidApplication() {
   delete this->log_;
+  delete this->clock_;
 }
 
 void AndroidApplication::start() {
 
   this->android_app_->onAppCmd = &(AndroidApplication::OnCommand);
-  this->android_app_->onInputEvent = NULL;
+  this->android_app_->onInputEvent = &(AndroidApplication::OnInputEvent);
 
   // Prepare to monitor accelerometer
   /*
@@ -75,6 +90,12 @@ void AndroidApplication::start() {
   //engine.state = *(struct saved_state*) state->savedState;
   //}
   // loop waiting for stuff to do.
+  double t1, t2, delta_t;
+
+  AndroidClock* clock = static_cast<AndroidClock*>(this->clock_);
+
+  t1 = clock->now_ms();
+
   while (1) {
     // Read all pending events.
     int ident;
@@ -84,7 +105,7 @@ void AndroidApplication::start() {
     // If not animating, we will block forever waiting for events.
     // If animating, we loop until all events are read, then continue
     // to draw the next frame of animation.
-    while ((ident = ALooper_pollAll(true ? 0 : -1, NULL, &events,
+    while ((ident = ALooper_pollAll(this->paused_ ? -1 : 0, NULL, &events,
                                     (void**) &source)) >= 0) {
 
       // Process this event.
@@ -112,13 +133,10 @@ void AndroidApplication::start() {
       }
     }
 
-    if (true) {
-      // Done with events; draw next animation frame.
-
-      // Drawing is throttled to the screen update rate, so there
-      // is no need to do timing here.
-      this->DrawFrame();
-    }
+    t2 = clock->now_ms();
+    delta_t = t2 - t1;
+    this->DrawFrame(delta_t);
+    t1 = clock->now_ms();
   }
 }
 
@@ -168,11 +186,13 @@ void AndroidApplication::InitializeNativeWindow() {
   eglQuerySurface(display, surface, EGL_WIDTH, &w);
   eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-  AndroidApplication::instance_->window_.set_display(display);
-  AndroidApplication::instance_->window_.set_context(context);
-  AndroidApplication::instance_->window_.set_surface(surface);
-  AndroidApplication::instance_->window_.set_width(w);
-  AndroidApplication::instance_->window_.set_height(h);
+  Furai::LOG->LogV("Display Sizee: %dpx by %dpx", (int) w, (int) h);
+
+  Furai::APP->window()->set_display(display);
+  Furai::APP->window()->set_context(context);
+  Furai::APP->window()->set_surface(surface);
+  Furai::APP->window()->set_width(w);
+  Furai::APP->window()->set_height(h);
 
   // Initialize GL state.
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
@@ -210,34 +230,47 @@ void AndroidApplication::DestroyNativeWindow() {
   this->window_.set_surface(EGL_NO_SURFACE);
 }
 
-void AndroidApplication::DrawFrame() {
+void AndroidApplication::DrawFrame(const double delta_time) {
   if (this->window_.display() == NULL || this->android_app_->window == NULL) {
     return;
   }
 
-  this->window_listener_->OnDraw(0);
+  this->window_listener_->OnDraw(delta_time);
 
   eglSwapBuffers(this->window_.display(), this->window_.surface());
 }
 
-void AndroidApplication::OnCommand(struct android_app* app,
-                                          int32_t command) {
+void AndroidApplication::OnCommand(struct android_app* app, int32_t command) {
+  AndroidApplication* app_instance =
+      static_cast<AndroidApplication*>(Furai::APP);
+  WindowListener* listener = app_instance->window_listener_;
+  AndroidFullWindowListener* alistener = app_instance->full_window_listener_;
+
   switch (command) {
     case APP_CMD_RESUME:
-      Furai::LOG->LogV("AA: APP_CMD_RESUME");
-      AndroidApplication::instance_->window_listener_->OnResume();
+      app_instance->paused_ = false;
+      app_instance->stopped_ = false;
+      if (alistener != NULL) {
+        alistener->OnResume();
+      }
       break;
     case APP_CMD_PAUSE:
-      AndroidApplication::instance_->window_listener_->OnPause();
+      app_instance->paused_ = true;
+      if (alistener != NULL) {
+        alistener->OnPause();
+      }
       break;
     case APP_CMD_START:
-      AndroidApplication::instance_->window_listener_->OnCreate();
+      listener->OnCreate();
       break;
     case APP_CMD_DESTROY:
-      AndroidApplication::instance_->window_listener_->OnDestroy();
+      listener->OnDestroy();
       break;
     case APP_CMD_STOP:
-      AndroidApplication::instance_->window_listener_->OnPause();
+      app_instance->stopped_ = true;
+      if (alistener != NULL) {
+        alistener->OnStop();
+      }
       break;
     case APP_CMD_SAVE_STATE:
       // The system has asked us to save our current state.  Do so.
@@ -247,14 +280,15 @@ void AndroidApplication::OnCommand(struct android_app* app,
       break;
     case APP_CMD_INIT_WINDOW:
       // The window is being shown, get it ready.
-      if (AndroidApplication::instance_->android_app_->window != NULL) {
-        AndroidApplication::instance_->InitializeNativeWindow();
-        AndroidApplication::instance_->DrawFrame();
+      Furai::LOG->LogV("AndroidApplication: INIT WINDOW");
+      if (app_instance->android_app_->window != NULL) {
+        app_instance->InitializeNativeWindow();
+        app_instance->DrawFrame(0);
       }
       break;
     case APP_CMD_TERM_WINDOW:
       // The window is being hidden or closed, clean it up.
-      AndroidApplication::instance_->DestroyNativeWindow();
+      app_instance->DestroyNativeWindow();
       break;
     case APP_CMD_GAINED_FOCUS:
       /*
@@ -268,6 +302,8 @@ void AndroidApplication::OnCommand(struct android_app* app,
        (1000L / 60) * 1000);
        }
        */
+      //app_instance->get_window()->set_focus(true);
+      listener->OnFocusGained();
       break;
     case APP_CMD_LOST_FOCUS:
       /*
@@ -281,7 +317,22 @@ void AndroidApplication::OnCommand(struct android_app* app,
        engine->animating = 0;
        engine_draw_frame (engine);
        */
+      //app_instance->get_window()->set_focus(false);
+      listener->OnFocusLost();
       break;
   }
 }
+
+int32_t AndroidApplication::OnInputEvent(struct android_app* app,
+                                         AInputEvent* event) {
+  if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
+    //engine->animating = 1;
+    //engine->state.x = AMotionEvent_getX(event, 0);
+    //engine->state.y = AMotionEvent_getY(event, 0);
+    return 1;
+  }
+
+  return 0;
+}
+
 }  // namespace furai

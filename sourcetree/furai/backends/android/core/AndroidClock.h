@@ -21,46 +21,26 @@
  -----------------------------------------------------------------------------
  */
 
-#include <android/log.h>
-#include "furai/backends/android/log/AndroidLog.h"
+#ifndef FURAI_ANDROIDCLOCK_H_
+#define FURAI_ANDROIDCLOCK_H_
+
+#include <time.h>
+#include <furai/core/Clock.h>
 
 namespace furai {
 
-AndroidLog::AndroidLog() {
-  this->tag_ = new char[6];
-  this->tag_[0] = 'F';
-  this->tag_[1] = 'u';
-  this->tag_[2] = 'r';
-  this->tag_[3] = 'a';
-  this->tag_[4] = 'i';
-  this->tag_[5] = '\0';
-}
+class AndroidClock : public Clock {
+ public:
+  AndroidClock();
 
-AndroidLog::~AndroidLog() {
-  delete this->tag_;
-}
+  virtual ~AndroidClock();
 
-void AndroidLog::LogE(const char *fmt, ...) {
-  if (this->log_level_ >= LOG_INFO) {
-    va_list args;
-    va_start(args, fmt);
-    __android_log_print(ANDROID_LOG_INFO, this->tag_, fmt, args);
+  inline double now_ms() {
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
   }
-}
-void AndroidLog::LogI(const char *fmt, ...) {
-  if (this->log_level_ >= LOG_INFO) {
-    va_list args;
-    va_start(args, fmt);
-    __android_log_print(ANDROID_LOG_INFO, this->tag_, fmt, args);
-  }
-}
-
-void AndroidLog::LogV(const char *fmt, ...) {
-  if (this->log_level_ >= LOG_INFO) {
-    va_list args;
-    va_start(args, fmt);
-    __android_log_print(ANDROID_LOG_INFO, this->tag_, fmt, args);
-  }
-}
+};
 
 }  // namespace furai
+#endif /* FURAI_ANDROIDCLOCK_H_ */

@@ -21,36 +21,24 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_APPLICATION_H_
-#define FURAI_APPLICATION_H_
-
-#include <furai/core/WindowListener.h>
-#include <furai/core/Window.h>
-#include <furai/core/Log.h>
-#include <furai/core/Clock.h>
+#include <furai/backends/android/core/AndroidLog.h>
 
 namespace furai {
 
-class Application {
- public:
+AndroidLog::AndroidLog() {
+  this->tag_ = new char[6];
+  this->tag_[0] = 'F';
+  this->tag_[1] = 'u';
+  this->tag_[2] = 'r';
+  this->tag_[3] = 'a';
+  this->tag_[4] = 'i';
+  this->tag_[5] = '\0';
 
-  virtual ~Application() {
-  }
-  ;
+  this->log_level_ = LOG_VERBOSE;
+}
 
-  virtual void start() = 0;
+AndroidLog::~AndroidLog() {
+  delete this->tag_;
+}
 
-  Window* window() {
-    return &this->window_;
-  }
-
- protected:
-  Window window_;
-  WindowListener* window_listener_;
-  Log* log_;
-  Clock* clock_;
-};
-
-}  // namespace
-
-#endif /* FURAI_APPLICATION_H_ */
+}  // namespace furai

@@ -27,26 +27,32 @@
 #include <android_native_app_glue.h>
 #include <furai/core/Application.h>
 #include <furai/core/WindowListener.h>
+#include <furai/backends/android/core/AndroidFullWindowListener.h>
 
 namespace furai {
 
 class AndroidApplication : public Application {
  public:
-  static AndroidApplication* instance_;
 
   AndroidApplication(WindowListener* window_listener, android_app* app);
+  AndroidApplication(WindowListener* window_listener,
+                     AndroidFullWindowListener* full_window_listener,
+                     android_app* app);
   virtual ~AndroidApplication();
 
   void start();
 
  private:
+  AndroidFullWindowListener* full_window_listener_;
   android_app* android_app_;
+  bool paused_;
+  bool stopped_;
 
   void InitializeNativeWindow();
   void DestroyNativeWindow();
-  void DrawFrame();
+  void DrawFrame(const double delta_time);
   static void OnCommand(struct android_app* app, int32_t command);
-  static void OnInputEvent();
+  static int32_t OnInputEvent(struct android_app* app, AInputEvent* event);
 };
 
 }  // namespace furai

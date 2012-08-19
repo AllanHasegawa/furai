@@ -6,10 +6,13 @@
 #include <furai/backends/android/core/AndroidApplication.h>
 #include <android/native_activity.h>
 #include <HelloTriangle.h>
+#include <AndroidHelloTriangle.h>
 
 void android_main(struct android_app *app) {
-  furai::WindowListener *hello_triangle = new HelloTriangle();
-  furai::Application* application = new furai::AndroidApplication(hello_triangle,
-                                                                  app);
+  using namespace furai;
+  WindowListener* hello_triangle = new HelloTriangle();
+  AndroidFullWindowListener* full_app_cycle = new AndroidHelloTriangle();
+  Application* application = new AndroidApplication(hello_triangle,
+                                                    full_app_cycle, app);
   application->start();
 }

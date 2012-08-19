@@ -21,25 +21,22 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDLOG_H_
-#define FURAI_ANDROIDLOG_H_
-
-#include <furai/log/Log.h>
+#ifndef FURAI_ANDROIDFULLWINDOWLISTENER_H_
+#define FURAI_ANDROIDFULLWINDOWLISTENER_H_
 
 namespace furai {
 
-class AndroidLog : public furai::Log {
+class AndroidFullWindowListener {
  public:
-  AndroidLog();
-  virtual ~AndroidLog();
+  virtual ~AndroidFullWindowListener() {
+  }
+  ;
 
-  void LogE(const char *fmt, ...);
-  void LogI(const char *fmt, ...);
-  void LogV(const char *fmt, ...);
-
- private:
-  char* tag_;
+  virtual void OnResume() = 0;
+  virtual void OnPause() = 0;
+  virtual void OnStop() = 0;
 };
 
-}  // namespace furai
-#endif /* FURAI_ANDROIDLOG_H_ */
+}  // namespace
+
+#endif /* FURAI_ANDROIDFULLWINDOWLISTENER_H_ */

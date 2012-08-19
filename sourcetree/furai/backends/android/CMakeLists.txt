@@ -4,7 +4,6 @@
 
 project(furai_backend_android)
 
-add_subdirectory(log)
 add_subdirectory(core)
 
 set(LIBRARY_DEPS

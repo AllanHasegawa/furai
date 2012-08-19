@@ -70,12 +70,21 @@ class Window {
     width_ = width;
   }
 
+  bool focus() const {
+    return focus_;
+  }
+
+  void set_focus(bool focus) {
+    this->focus_ = focus;
+  }
+
  private:
   EGLDisplay display_;
   EGLSurface surface_;
   EGLContext context_;
   int32_t width_;
   int32_t height_;
+  bool focus_;
 };
 
 }  // namespace

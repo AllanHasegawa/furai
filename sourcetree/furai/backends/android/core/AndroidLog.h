@@ -21,36 +21,48 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_APPLICATION_H_
-#define FURAI_APPLICATION_H_
+#ifndef FURAI_ANDROIDLOG_H_
+#define FURAI_ANDROIDLOG_H_
 
-#include <furai/core/WindowListener.h>
-#include <furai/core/Window.h>
+#include <stdarg.h>
+#include <android/log.h>
+
 #include <furai/core/Log.h>
-#include <furai/core/Clock.h>
 
 namespace furai {
 
-class Application {
+class AndroidLog : public furai::Log {
  public:
+  AndroidLog();
+  virtual ~AndroidLog();
 
-  virtual ~Application() {
+  inline void LogE(const char *fmt, ...) {
+    if (this->log_level_ >= LOG_ERROR) {
+      va_list args;
+      va_start(args, fmt);
+      __android_log_vprint(ANDROID_LOG_ERROR, this->tag_, fmt, args);
+    }
   }
-  ;
 
-  virtual void start() = 0;
-
-  Window* window() {
-    return &this->window_;
+  inline void LogI(const char *fmt, ...) {
+    if (this->log_level_ >= LOG_INFO) {
+      va_list args;
+      va_start(args, fmt);
+      __android_log_vprint(ANDROID_LOG_INFO, this->tag_, fmt, args);
+    }
   }
 
- protected:
-  Window window_;
-  WindowListener* window_listener_;
-  Log* log_;
-  Clock* clock_;
+  inline void LogV(const char *fmt, ...) {
+    if (this->log_level_ == LOG_VERBOSE) {
+      va_list args;
+      va_start(args, fmt);
+      __android_log_vprint(ANDROID_LOG_VERBOSE, this->tag_, fmt, args);
+    }
+  }
+
+ private:
+  char* tag_;
 };
 
-}  // namespace
-
-#endif /* FURAI_APPLICATION_H_ */
+}  // namespace furai
+#endif /* FURAI_ANDROIDLOG_H_ */

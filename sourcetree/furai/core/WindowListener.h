@@ -33,11 +33,12 @@ class WindowListener {
   ;
 
   virtual void OnCreate() = 0;
-  virtual void OnResume() = 0;
   virtual void OnDraw(const double delta_time) = 0;
   virtual void OnResize(const int width, const int height) = 0;
-  virtual void OnPause() = 0;
   virtual void OnDestroy() = 0;
+
+  virtual void OnFocusGained() = 0;
+  virtual void OnFocusLost() = 0;
 };
 
 }  // namespace

@@ -21,54 +21,23 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_HELLOTRIANGLE_H_
-#define FURAI_HELLOTRIANGLE_H_
+#ifndef FURAI_ANDROIDHELLOTRIANGLE_H_
+#define FURAI_ANDROIDHELLOTRIANGLE_H_
 
-#include <GLES/gl.h>
-
-#include <furai/core/WindowListener.h>
 #include <furai/backends/android/core/AndroidFullWindowListener.h>
 #include <furai/core/Furai.h>
 
-class HelloTriangle : public furai::WindowListener {
+class AndroidHelloTriangle : public furai::AndroidFullWindowListener {
  public:
-  HelloTriangle() {
+  AndroidHelloTriangle() {
 
   }
-  ~HelloTriangle() {
+  ~AndroidHelloTriangle() {
 
-  }
-
-  void OnCreate() {
-    furai::Furai::LOG->LogV("On_Create");
   }
 
   void OnResume() {
     furai::Furai::LOG->LogV("On_Resume");
-  }
-
-  void OnDraw(const double delta_time) {
-    furai::Furai::LOG->LogV("delta_time: %g", delta_time);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    GLfloat vertices[] =
-        { -1.f, -1.f, -3.0f, 1.0f, -1.0f, -3.0f, .0f, 1.f, -3.f };
-
-    glLoadIdentity();
-
-    glColor4f(1, 0, 0, 1);
-    glEnableClientState(GL_VERTEX_ARRAY);
-
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-  }
-
-  void OnResize(const int width, const int height) {
-    furai::Furai::LOG->LogV("On_Resize %d px by %d px", width, height);
-    glClearColor(0, 0, 0, 1);
   }
 
   void OnPause() {
@@ -78,18 +47,6 @@ class HelloTriangle : public furai::WindowListener {
   void OnStop() {
     furai::Furai::LOG->LogV("On_Stop");
   }
-
-  void OnDestroy() {
-    furai::Furai::LOG->LogV("On_Destroy");
-  }
-
-  void OnFocusGained() {
-    furai::Furai::LOG->LogV("On_FocusGained");
-  }
-
-  void OnFocusLost() {
-    furai::Furai::LOG->LogV("On_FocusLost");
-  }
 };
 
-#endif /* FURAI_HELLOTRIANGLE_H_ */
+#endif /* FURAI_ANDROIDHELLOTRIANGLE_H_ */
