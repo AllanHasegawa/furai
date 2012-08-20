@@ -40,12 +40,24 @@ class Application {
 
   virtual void start() = 0;
 
-  Window* window() {
-    return &this->window_;
+  Clock* clock() const {
+    return clock_;
+  }
+
+  Log* log() const {
+    return log_;
+  }
+
+  Window* window() const {
+    return this->window_;
+  }
+
+  WindowListener* window_listener() const {
+    return this->window_listener_;
   }
 
  protected:
-  Window window_;
+  Window* window_;
   WindowListener* window_listener_;
   Log* log_;
   Clock* clock_;

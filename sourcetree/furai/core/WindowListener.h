@@ -24,6 +24,8 @@
 #ifndef FURAI_WINDOWLISTENER_H_
 #define FURAI_WINDOWLISTENER_H_
 
+#include <GLES/gl.h>
+
 namespace furai {
 
 class WindowListener {
@@ -34,7 +36,7 @@ class WindowListener {
 
   virtual void OnCreate() = 0;
   virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const int width, const int height) = 0;
+  virtual void OnResize(const GLint width, const GLint height) = 0;
   virtual void OnDestroy() = 0;
 
   virtual void OnFocusGained() = 0;

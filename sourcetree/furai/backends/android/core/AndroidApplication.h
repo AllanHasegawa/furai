@@ -48,9 +48,6 @@ class AndroidApplication : public Application {
   bool paused_;
   bool stopped_;
 
-  void InitializeNativeWindow();
-  void DestroyNativeWindow();
-  void DrawFrame(const double delta_time);
   static void OnCommand(struct android_app* app, int32_t command);
   static int32_t OnInputEvent(struct android_app* app, AInputEvent* event);
 };

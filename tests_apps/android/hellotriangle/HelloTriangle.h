@@ -41,6 +41,8 @@ class HelloTriangle : public furai::WindowListener {
 
   void OnCreate() {
     furai::Furai::LOG->LogV("On_Create");
+
+    this->rotation = 0;
   }
 
   void OnResume() {
@@ -48,13 +50,19 @@ class HelloTriangle : public furai::WindowListener {
   }
 
   void OnDraw(const double delta_time) {
-    furai::Furai::LOG->LogV("delta_time: %g", delta_time);
+    using namespace furai;
+
+    Furai::LOG->LogV("delta_time: %g | rotation: %g | fps: %d", delta_time,
+                     this->rotation, Furai::WINDOW->fps());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GLfloat vertices[] =
         { -1.f, -1.f, -3.0f, 1.0f, -1.0f, -3.0f, .0f, 1.f, -3.f };
 
     glLoadIdentity();
+
+    // glRotatef() accepts angle in degrees
+    glRotatef(this->rotation, 0, 0, 1);
 
     glColor4f(1, 0, 0, 1);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -64,6 +72,14 @@ class HelloTriangle : public furai::WindowListener {
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     glDisableClientState(GL_VERTEX_ARRAY);
+
+    // rotate 36 degrees per second!
+    // one full rotation each 10 seconds!
+    // delta_time is is ms, I', converting it to seconds :3
+    this->rotation += delta_time / 1000.f * 36.f;
+    if (this->rotation > 360.f) {
+      this->rotation = this->rotation - 360.f;
+    }
   }
 
   void OnResize(const int width, const int height) {
@@ -90,6 +106,9 @@ class HelloTriangle : public furai::WindowListener {
   void OnFocusLost() {
     furai::Furai::LOG->LogV("On_FocusLost");
   }
+
+ private:
+  double rotation;
 };
 
 #endif /* FURAI_HELLOTRIANGLE_H_ */

@@ -21,18 +21,33 @@
  -----------------------------------------------------------------------------
  */
 
-#include <furai/core/Furai.h>
-#include <furai/core/Log.h>
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
+#ifndef FURAI_ANDROIDWINDOW_H_
+#define FURAI_ANDROIDWINDOW_H_
+
+#include <android_native_app_glue.h>
+
 #include <furai/core/Window.h>
+#include <furai/backends/android/core/AndroidClock.h>
 
 namespace furai {
 
-Application* Furai::APP = NULL;
-Log* Furai::LOG = NULL;
-WindowListener* Furai::WINDOW_LISTENER = NULL;
-Clock* Furai::CLOCK = NULL;
-Window* Furai::WINDOW = NULL;
+class AndroidWindow : public furai::Window {
+ public:
+  AndroidWindow(WindowListener* window_listener, android_app* app);
+  virtual ~AndroidWindow();
 
-}  // namespace
+  void Initialize();
+  void Destroy();
+  void DrawFrame();
+
+ private:
+  android_app* android_app_;
+  AndroidClock* android_clock_;
+
+  double time_holder;
+  uint32_t frames_;
+  double frame_start_time;
+};
+
+}  // namespace furai
+#endif /* FURAI_ANDROIDWINDOW_H_ */

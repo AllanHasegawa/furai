@@ -26,10 +26,24 @@
 
 #include <egl/egl.h>
 
+#include <furai/core/WindowListener.h>
+
 namespace furai {
 
 class Window {
  public:
+  virtual ~Window() {
+  }
+  ;
+
+  virtual void Initialize() = 0;
+  virtual void Destroy() = 0;
+  virtual void DrawFrame() = 0;
+
+  uint32_t fps() {
+    return this->fps_;
+  }
+
   EGLContext context() const {
     return context_;
   }
@@ -78,12 +92,14 @@ class Window {
     this->focus_ = focus;
   }
 
- private:
+ protected:
+  WindowListener* window_listener_;
+  double fps_;
   EGLDisplay display_;
   EGLSurface surface_;
   EGLContext context_;
-  int32_t width_;
-  int32_t height_;
+  GLint width_;
+  GLint height_;
   bool focus_;
 };
 

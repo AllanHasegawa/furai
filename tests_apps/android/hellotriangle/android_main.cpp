@@ -15,4 +15,8 @@ void android_main(struct android_app *app) {
   Application* application = new AndroidApplication(hello_triangle,
                                                     full_app_cycle, app);
   application->start();
+
+  delete full_app_cycle;
+  delete hello_triangle;
+  delete application;
 }

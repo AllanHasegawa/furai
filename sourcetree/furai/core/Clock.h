@@ -32,7 +32,7 @@ class Clock {
   }
   ;
 
-  virtual double now_ms() = 0;
+  virtual double NowMS() = 0;
 };
 
 }  // namespace

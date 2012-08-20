@@ -28,6 +28,7 @@
 #include <furai/core/Application.h>
 #include <furai/core/WindowListener.h>
 #include <furai/core/Clock.h>
+#include <furai/core/Window.h>
 
 namespace furai {
 
@@ -37,6 +38,7 @@ class Furai {
   static Log* LOG;
   static WindowListener* WINDOW_LISTENER;
   static Clock* CLOCK;
+  static Window* WINDOW;
 };
 
 }  // namespace

@@ -22,8 +22,6 @@
  */
 #include <android_native_app_glue.h>
 
-#include <EGL/egl.h>
-#include <GLES/gl.h>
 #include <android/native_activity.h>
 
 #include <furai/backends/android/core/AndroidApplication.h>
@@ -32,6 +30,7 @@
 #include <furai/core/Furai.h>
 #include <furai/core/Clock.h>
 #include <furai/backends/android/core/AndroidClock.h>
+#include <furai/backends/android/core/AndroidWindow.h>
 
 namespace furai {
 
@@ -45,22 +44,20 @@ AndroidApplication::AndroidApplication(
     AndroidFullWindowListener* full_window_listener, android_app* app) {
 
   this->log_ = new AndroidLog();
+  Furai::LOG = this->log_;
+
   this->clock_ = new AndroidClock();
+  Furai::CLOCK = this->clock_;
+
+  this->window_ = new AndroidWindow(window_listener, app);
+  Furai::WINDOW = this->window_;
+
   this->android_app_ = app;
   this->window_listener_ = window_listener;
   this->full_window_listener_ = full_window_listener;
 
-  /*
-   * Populate the GLOBAL variables from Furai!
-   *
-   * Note however, the backend Application class still needs to take
-   * care of them :)
-   */
-
   Furai::WINDOW_LISTENER = this->window_listener_;
-  Furai::LOG = this->log_;
   Furai::APP = this;
-  Furai::CLOCK = this->clock_;
 
   this->paused_ = true;
   this->stopped_ = true;
@@ -90,12 +87,6 @@ void AndroidApplication::start() {
   //engine.state = *(struct saved_state*) state->savedState;
   //}
   // loop waiting for stuff to do.
-  double t1, t2, delta_t;
-
-  AndroidClock* clock = static_cast<AndroidClock*>(this->clock_);
-
-  t1 = clock->now_ms();
-
   while (1) {
     // Read all pending events.
     int ident;
@@ -128,122 +119,19 @@ void AndroidApplication::start() {
 
       // Check if we are exiting.
       if (this->android_app_->destroyRequested != 0) {
-        this->DestroyNativeWindow();
+        this->window()->Destroy();
         return;
       }
     }
 
-    t2 = clock->now_ms();
-    delta_t = t2 - t1;
-    this->DrawFrame(delta_t);
-    t1 = clock->now_ms();
+    this->window()->DrawFrame();
   }
-}
-
-void AndroidApplication::InitializeNativeWindow() {
-  // initialize OpenGL ES and EGL
-
-  /*
-   * Here specify the attributes of the desired configuration.
-   * Below, we select an EGLConfig with at least 8 bits per color
-   * component compatible with on-screen windows
-   */
-
-  const EGLint attribs[] = { EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_BLUE_SIZE, 8,
-      EGL_GREEN_SIZE, 8, EGL_RED_SIZE, 8, EGL_NONE };
-  EGLint w, h, dummy, format;
-  EGLint numConfigs;
-  EGLConfig config;
-  EGLSurface surface;
-  EGLContext context;
-
-  EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-
-  eglInitialize(display, 0, 0);
-
-  /* Here, the application chooses the configuration it desires. In this
-   * sample, we have a very simplified selection process, where we pick
-   * the first EGLConfig that matches our criteria */
-  eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-
-  /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
-   * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
-   * As soon as we picked a EGLConfig, we can safely reconfigure the
-   * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
-  eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-
-  ANativeWindow_setBuffersGeometry(this->android_app_->window, 0, 0, format);
-
-  surface = eglCreateWindowSurface(display, config, this->android_app_->window,
-                                   NULL);
-  context = eglCreateContext(display, config, NULL, NULL);
-
-  if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-    Furai::LOG->LogI("Unable to eglMakeCurrent");
-    return;
-  }
-
-  eglQuerySurface(display, surface, EGL_WIDTH, &w);
-  eglQuerySurface(display, surface, EGL_HEIGHT, &h);
-
-  Furai::LOG->LogV("Display Sizee: %dpx by %dpx", (int) w, (int) h);
-
-  Furai::APP->window()->set_display(display);
-  Furai::APP->window()->set_context(context);
-  Furai::APP->window()->set_surface(surface);
-  Furai::APP->window()->set_width(w);
-  Furai::APP->window()->set_height(h);
-
-  // Initialize GL state.
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-  glEnable(GL_CULL_FACE);
-  glShadeModel(GL_SMOOTH);
-  glDisable(GL_DEPTH_TEST);
-
-  glClearColor(0.3, 0.3, 0.3, 1);
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrthof(-1.0, 1.0, -1.0, 1.0f, 0.01, 10000.0);
-  glMatrixMode(GL_MODELVIEW);
-  glViewport(0, 0, w, h);
-
-  this->window_listener_->OnResize(w, h);
-
-  return;
-}
-
-void AndroidApplication::DestroyNativeWindow() {
-  if (this->window_.display() != EGL_NO_DISPLAY) {
-    eglMakeCurrent(this->window_.display(), EGL_NO_SURFACE, EGL_NO_SURFACE,
-                   EGL_NO_CONTEXT);
-    if (this->window_.context() != EGL_NO_CONTEXT) {
-      eglDestroyContext(this->window_.display(), this->window_.context());
-    }
-    if (this->window_.surface() != EGL_NO_SURFACE) {
-      eglDestroySurface(this->window_.display(), this->window_.surface());
-    }
-    eglTerminate(this->window_.display());
-  }
-  this->window_.set_display(EGL_NO_DISPLAY);
-  this->window_.set_context(EGL_NO_CONTEXT);
-  this->window_.set_surface(EGL_NO_SURFACE);
-}
-
-void AndroidApplication::DrawFrame(const double delta_time) {
-  if (this->window_.display() == NULL || this->android_app_->window == NULL) {
-    return;
-  }
-
-  this->window_listener_->OnDraw(delta_time);
-
-  eglSwapBuffers(this->window_.display(), this->window_.surface());
 }
 
 void AndroidApplication::OnCommand(struct android_app* app, int32_t command) {
   AndroidApplication* app_instance =
       static_cast<AndroidApplication*>(Furai::APP);
-  WindowListener* listener = app_instance->window_listener_;
+  WindowListener* listener = app_instance->window_listener();
   AndroidFullWindowListener* alistener = app_instance->full_window_listener_;
 
   switch (command) {
@@ -282,13 +170,12 @@ void AndroidApplication::OnCommand(struct android_app* app, int32_t command) {
       // The window is being shown, get it ready.
       Furai::LOG->LogV("AndroidApplication: INIT WINDOW");
       if (app_instance->android_app_->window != NULL) {
-        app_instance->InitializeNativeWindow();
-        app_instance->DrawFrame(0);
+        app_instance->window()->Initialize();
       }
       break;
     case APP_CMD_TERM_WINDOW:
       // The window is being hidden or closed, clean it up.
-      app_instance->DestroyNativeWindow();
+      app_instance->window()->Destroy();
       break;
     case APP_CMD_GAINED_FOCUS:
       /*
