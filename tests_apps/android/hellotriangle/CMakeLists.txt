@@ -37,7 +37,7 @@ set(LIBRARY_DEPS
         furai_backend_android
         )
         
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -funwind-tables") 
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -funwind-tables") 
 
 add_library(furai_sample SHARED ${SRCS})
 target_link_libraries(

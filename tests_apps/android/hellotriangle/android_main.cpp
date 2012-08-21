@@ -1,10 +1,10 @@
 #include <jni.h>
 
 #include <android_native_app_glue.h>
+#include <android/native_activity.h>
 
 #include <furai/core/Application.h>
 #include <furai/backends/android/core/AndroidApplication.h>
-#include <android/native_activity.h>
 #include <HelloTriangle.h>
 
 void android_main(struct android_app *app) {
@@ -14,9 +14,9 @@ void android_main(struct android_app *app) {
 
   Application* application = new AndroidApplication(hello_triangle, app);
 
-  Furai::LOG->LogI("Initializing HelloTriangle Furai Sample");
+  //Furai::LOG->LogI("Initializing HelloTriangle Furai Sample");
 
-  //application->Start();
+  application->Start();
 
   delete hello_triangle;
   delete application;

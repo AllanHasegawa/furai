@@ -48,8 +48,8 @@ class AndroidApplication : public Application {
   bool paused_;
   bool stopped_;
 
-  static void OnCommand(struct android_app* app, int32_t command);
-  static int32_t OnInputEvent(struct android_app* app, AInputEvent* event);
+  static void OnCommand(android_app* app, int32_t command);
+  static int32_t OnInputEvent(android_app* app, AInputEvent* event);
 };
 
 }  // namespace furai

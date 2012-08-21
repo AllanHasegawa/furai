@@ -21,9 +21,7 @@
  -----------------------------------------------------------------------------
  */
 
-//#include <unistd.h>
 #include <android_native_app_glue.h>
-#include <android/native_activity.h>
 
 #include <furai/backends/android/core/AndroidApplication.h>
 #include <furai/core/Log.h>
@@ -61,24 +59,25 @@ AndroidApplication::AndroidApplication(
   this->full_window_listener_ = full_window_listener;
 
   Furai::WINDOW_LISTENER = this->window_listener_;
-  Furai::APP = this;
 
   this->paused_ = true;
   this->stopped_ = true;
   this->focus_ = false;
+  Furai::APP = this;
   Furai::LOG->LogV("AndroidApplication loaded...");
 }
 
 AndroidApplication::~AndroidApplication() {
   delete this->log_;
   delete this->clock_;
+  delete this->window_;
 }
 
 void AndroidApplication::Start() {
 
   Furai::LOG->LogI("AA Start");
   this->android_app_->onAppCmd = &(AndroidApplication::OnCommand);
-  this->android_app_->onInputEvent = &(AndroidApplication::OnInputEvent);
+  //this->android_app_->onInputEvent = &(AndroidApplication::OnInputEvent);
 
   // Prepare to monitor accelerometer
   /*
@@ -134,15 +133,15 @@ void AndroidApplication::Start() {
     // by default, if the user did not provide a AndroidFullWindowListener,
     // the application will not render anything without focus to save battery.
     //if (!this->stopped_ || this->full_window_listener_ != NULL) {
-      this->window()->DrawFrame();
+    this->window()->DrawFrame();
     //} else {
-      // sleep for 16ms :3
-      //usleep(16);
+    // sleep for 16ms :3
+    //usleep(16);
     //}
   }
 }
 
-void AndroidApplication::OnCommand(struct android_app* app, int32_t command) {
+void AndroidApplication::OnCommand(android_app* app, int32_t command) {
   AndroidApplication* app_instance =
       static_cast<AndroidApplication*>(Furai::APP);
   WindowListener* listener = app_instance->window_listener();
@@ -209,29 +208,30 @@ void AndroidApplication::OnCommand(struct android_app* app, int32_t command) {
 
   // If user did set a AndroidFullWindowListener we make use of
   // all the commands :3
-  if (app_instance->full_window_listener_ != NULL) {
+  /*
+   if (app_instance->full_window_listener_ != NULL) {
 
-    AndroidFullWindowListener* alistener = app_instance->full_window_listener_;
+   AndroidFullWindowListener* alistener = app_instance->full_window_listener_;
 
-    switch (command) {
-      case APP_CMD_RESUME:
-        app_instance->paused_ = false;
-        app_instance->stopped_ = false;
-        alistener->OnResume();
-        break;
-      case APP_CMD_PAUSE:
-        app_instance->paused_ = true;
-        alistener->OnPause();
-        break;
-      case APP_CMD_STOP:
-        app_instance->stopped_ = true;
-        alistener->OnStop();
-        break;
-    }
-  }
+   switch (command) {
+   case APP_CMD_RESUME:
+   app_instance->paused_ = false;
+   app_instance->stopped_ = false;
+   alistener->OnResume();
+   break;
+   case APP_CMD_PAUSE:
+   app_instance->paused_ = true;
+   alistener->OnPause();
+   break;
+   case APP_CMD_STOP:
+   app_instance->stopped_ = true;
+   alistener->OnStop();
+   break;
+   }
+   } */
 }
 
-int32_t AndroidApplication::OnInputEvent(struct android_app* app,
+int32_t AndroidApplication::OnInputEvent(android_app* app,
                                          AInputEvent* event) {
   if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
     //engine->animating = 1;
