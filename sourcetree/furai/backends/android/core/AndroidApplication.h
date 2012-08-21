@@ -40,7 +40,7 @@ class AndroidApplication : public Application {
                      android_app* app);
   virtual ~AndroidApplication();
 
-  void start();
+  void Start();
 
  private:
   AndroidFullWindowListener* full_window_listener_;

@@ -90,6 +90,10 @@ void AndroidWindow::Initialize() {
   eglQuerySurface(this->display_, this->surface_, EGL_WIDTH, &this->width_);
   eglQuerySurface(this->display_, this->surface_, EGL_HEIGHT, &this->height_);
 
+  // VSync
+  // Looks broken at this moment for a Galaxy Note stock 4.0.3
+  //eglSwapInterval(this->display_, 1);
+
   Furai::LOG->LogV("Display Size: %dpx by %dpx", (int) this->width_,
                    (int) this->height_);
 
@@ -144,16 +148,16 @@ void AndroidWindow::DrawFrame() {
   delta_t = time_now - this->time_holder;
   this->time_holder = time_now;
 
-  this->window_listener_->OnDraw(delta_t);
   eglSwapBuffers(this->display_, this->surface_);
+  this->window_listener_->OnDraw(delta_t);
 
+  ++this->frames_;
   // Every second update "fps_"
   if ((time_now = clock->NowMS()) - this->frame_start_time >= 1000.f) {
     this->fps_ = this->frames_;
     this->frame_start_time = time_now;
     this->frames_ = 0;
   }
-  ++this->frames_;
 }
 
 }  // namespace furai

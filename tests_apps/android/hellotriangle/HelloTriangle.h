@@ -27,7 +27,6 @@
 #include <GLES/gl.h>
 
 #include <furai/core/WindowListener.h>
-#include <furai/backends/android/core/AndroidFullWindowListener.h>
 #include <furai/core/Furai.h>
 
 class HelloTriangle : public furai::WindowListener {
@@ -43,17 +42,20 @@ class HelloTriangle : public furai::WindowListener {
     furai::Furai::LOG->LogV("On_Create");
 
     this->rotation = 0;
-  }
-
-  void OnResume() {
-    furai::Furai::LOG->LogV("On_Resume");
+    this->accumulator = 0;
   }
 
   void OnDraw(const double delta_time) {
     using namespace furai;
 
-    Furai::LOG->LogV("delta_time: %g | rotation: %g | fps: %d", delta_time,
-                     this->rotation, Furai::WINDOW->fps());
+    // Dump stuff to the log every frame is not nice D:
+    ++this->accumulator;
+    if (this->accumulator > 60) {
+      Furai::LOG->LogV("delta_time: %g | rotation: %g | fps: %d", delta_time,
+                       this->rotation, Furai::WINDOW->fps());
+
+      this->accumulator = 0;
+    }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GLfloat vertices[] =
@@ -87,14 +89,6 @@ class HelloTriangle : public furai::WindowListener {
     glClearColor(0, 0, 0, 1);
   }
 
-  void OnPause() {
-    furai::Furai::LOG->LogV("On_Pause");
-  }
-
-  void OnStop() {
-    furai::Furai::LOG->LogV("On_Stop");
-  }
-
   void OnDestroy() {
     furai::Furai::LOG->LogV("On_Destroy");
   }
@@ -109,6 +103,7 @@ class HelloTriangle : public furai::WindowListener {
 
  private:
   double rotation;
+  int accumulator;
 };
 
 #endif /* FURAI_HELLOTRIANGLE_H_ */

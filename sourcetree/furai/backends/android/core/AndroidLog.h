@@ -37,7 +37,7 @@ class AndroidLog : public furai::Log {
   virtual ~AndroidLog();
 
   inline void LogE(const char *fmt, ...) {
-    if (this->log_level_ >= LOG_ERROR) {
+    if (this->log_level_ <= LOG_ERROR) {
       va_list args;
       va_start(args, fmt);
       __android_log_vprint(ANDROID_LOG_ERROR, this->tag_, fmt, args);
@@ -45,7 +45,7 @@ class AndroidLog : public furai::Log {
   }
 
   inline void LogI(const char *fmt, ...) {
-    if (this->log_level_ >= LOG_INFO) {
+    if (this->log_level_ <= LOG_INFO) {
       va_list args;
       va_start(args, fmt);
       __android_log_vprint(ANDROID_LOG_INFO, this->tag_, fmt, args);
@@ -53,7 +53,7 @@ class AndroidLog : public furai::Log {
   }
 
   inline void LogV(const char *fmt, ...) {
-    if (this->log_level_ == LOG_VERBOSE) {
+    if (this->log_level_ <= LOG_VERBOSE) {
       va_list args;
       va_start(args, fmt);
       __android_log_vprint(ANDROID_LOG_VERBOSE, this->tag_, fmt, args);

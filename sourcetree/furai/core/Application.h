@@ -38,7 +38,7 @@ class Application {
   }
   ;
 
-  virtual void start() = 0;
+  virtual void Start() = 0;
 
   Clock* clock() const {
     return clock_;
@@ -61,6 +61,7 @@ class Application {
   WindowListener* window_listener_;
   Log* log_;
   Clock* clock_;
+  bool focus_;
 };
 
 }  // namespace

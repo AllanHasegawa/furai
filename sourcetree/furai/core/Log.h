@@ -27,10 +27,10 @@
 namespace furai {
 
 enum LogLevel {
-  LOG_NONE = 0,
-  LOG_ERROR = 1,
-  LOG_INFO = 2,
-  LOG_VERBOSE = 3
+  LOG_VERBOSE = 0,
+  LOG_INFO = 1,
+  LOG_ERROR = 2,
+  LOG_NONE = 3
 };
 
 class Log {

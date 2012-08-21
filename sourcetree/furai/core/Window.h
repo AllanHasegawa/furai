@@ -60,11 +60,11 @@ class Window {
     display_ = display;
   }
 
-  int32_t height() const {
+  GLint height() const {
     return height_;
   }
 
-  void set_height(int32_t height) {
+  void set_height(GLint height) {
     height_ = height;
   }
 
@@ -76,11 +76,11 @@ class Window {
     surface_ = surface;
   }
 
-  int32_t width() const {
+  GLint width() const {
     return width_;
   }
 
-  void set_width(int32_t width) {
+  void set_width(GLint width) {
     width_ = width;
   }
 
