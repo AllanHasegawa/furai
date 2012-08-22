@@ -21,6 +21,8 @@
  -----------------------------------------------------------------------------
  */
 
+#include <unistd.h>
+
 #include <android_native_app_glue.h>
 
 #include <furai/backends/android/core/AndroidApplication.h>
@@ -35,10 +37,16 @@ namespace furai {
 
 AndroidApplication::AndroidApplication(WindowListener* window_listener,
                                        android_app* app) {
-  AndroidApplication(window_listener, NULL, app);
+  this->Initialize(window_listener, NULL, app);
 }
 
 AndroidApplication::AndroidApplication(
+    WindowListener* window_listener,
+    AndroidFullWindowListener* full_window_listener, android_app* app) {
+  this->Initialize(window_listener, full_window_listener, app);
+}
+
+void AndroidApplication::Initialize(
     WindowListener* window_listener,
     AndroidFullWindowListener* full_window_listener, android_app* app) {
 
@@ -57,6 +65,8 @@ AndroidApplication::AndroidApplication(
   this->android_app_ = app;
   this->window_listener_ = window_listener;
   this->full_window_listener_ = full_window_listener;
+
+  this->has_full_window_listener_ = this->full_window_listener_ != NULL;
 
   Furai::WINDOW_LISTENER = this->window_listener_;
 
@@ -99,11 +109,15 @@ void AndroidApplication::Start() {
     int events;
     struct android_poll_source* source;
 
-    // If not animating, we will block forever waiting for events.
-    // If animating, we loop until all events are read, then continue
-    // to draw the next frame of animation.
-    while ((ident = ALooper_pollAll(this->paused_ ? -1 : 0, NULL, &events,
-                                    (void**) &source)) >= 0) {
+    // by default, if the user did not provide a AndroidFullWindowListener,
+    // the application will not render anything without focus to save battery.
+    //
+    // Second parameter is timeout!
+    // If the timeout is zero, returns immediately without blocking.
+    // If the timeout is negative, waits indefinitely until an event appears.
+    while ((ident = ALooper_pollAll(
+        !this->paused_ || this->has_full_window_listener_ ? 0 : -1, NULL,
+        &events, (void**) &source)) >= 0) {
 
       // Process this event.
       if (source != NULL) {
@@ -130,21 +144,16 @@ void AndroidApplication::Start() {
       }
     }
 
-    // by default, if the user did not provide a AndroidFullWindowListener,
-    // the application will not render anything without focus to save battery.
-    //if (!this->stopped_ || this->full_window_listener_ != NULL) {
     this->window()->DrawFrame();
-    //} else {
-    // sleep for 16ms :3
-    //usleep(16);
-    //}
   }
 }
 
 void AndroidApplication::OnCommand(android_app* app, int32_t command) {
+
   AndroidApplication* app_instance =
       static_cast<AndroidApplication*>(Furai::APP);
   WindowListener* listener = app_instance->window_listener();
+  AndroidFullWindowListener* alistener = app_instance->full_window_listener_;
 
   Furai::LOG->LogV("AA: cmd<%d>", command);
 
@@ -204,35 +213,50 @@ void AndroidApplication::OnCommand(android_app* app, int32_t command) {
       listener->OnFocusLost();
       app_instance->focus_ = false;
       break;
+    case APP_CMD_RESUME:
+      app_instance->paused_ = false;
+      app_instance->stopped_ = false;
+      if (alistener != NULL) {
+        alistener->OnResume();
+      }
+      break;
+    case APP_CMD_PAUSE:
+      app_instance->paused_ = true;
+      if (alistener != NULL) {
+        alistener->OnPause();
+      }
+      break;
+    case APP_CMD_STOP:
+      app_instance->stopped_ = true;
+      if (alistener != NULL) {
+        alistener->OnStop();
+      }
+      break;
   }
 
   // If user did set a AndroidFullWindowListener we make use of
   // all the commands :3
-  /*
-   if (app_instance->full_window_listener_ != NULL) {
+  if (app_instance->full_window_listener_ != NULL) {
 
-   AndroidFullWindowListener* alistener = app_instance->full_window_listener_;
-
-   switch (command) {
-   case APP_CMD_RESUME:
-   app_instance->paused_ = false;
-   app_instance->stopped_ = false;
-   alistener->OnResume();
-   break;
-   case APP_CMD_PAUSE:
-   app_instance->paused_ = true;
-   alistener->OnPause();
-   break;
-   case APP_CMD_STOP:
-   app_instance->stopped_ = true;
-   alistener->OnStop();
-   break;
-   }
-   } */
+    switch (command) {
+      case APP_CMD_RESUME:
+        app_instance->paused_ = false;
+        app_instance->stopped_ = false;
+        alistener->OnResume();
+        break;
+      case APP_CMD_PAUSE:
+        app_instance->paused_ = true;
+        alistener->OnPause();
+        break;
+      case APP_CMD_STOP:
+        app_instance->stopped_ = true;
+        alistener->OnStop();
+        break;
+    }
+  }
 }
 
-int32_t AndroidApplication::OnInputEvent(android_app* app,
-                                         AInputEvent* event) {
+int32_t AndroidApplication::OnInputEvent(android_app* app, AInputEvent* event) {
   if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
     //engine->animating = 1;
     //engine->state.x = AMotionEvent_getX(event, 0);

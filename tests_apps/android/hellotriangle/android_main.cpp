@@ -12,9 +12,9 @@ void android_main(struct android_app *app) {
 
   WindowListener* hello_triangle = new HelloTriangle();
 
-  Application* application = new AndroidApplication(hello_triangle, app);
+  Application* application = new AndroidApplication(hello_triangle, NULL, app);
 
-  //Furai::LOG->LogI("Initializing HelloTriangle Furai Sample");
+  Furai::LOG->LogI("Initializing HelloTriangle Furai Sample");
 
   application->Start();
 

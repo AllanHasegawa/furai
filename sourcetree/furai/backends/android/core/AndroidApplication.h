@@ -47,7 +47,11 @@ class AndroidApplication : public Application {
   android_app* android_app_;
   bool paused_;
   bool stopped_;
+  bool has_full_window_listener_;
 
+  void Initialize(WindowListener* window_listener,
+                  AndroidFullWindowListener* full_window_listener,
+                  android_app* app);
   static void OnCommand(android_app* app, int32_t command);
   static int32_t OnInputEvent(android_app* app, AInputEvent* event);
 };

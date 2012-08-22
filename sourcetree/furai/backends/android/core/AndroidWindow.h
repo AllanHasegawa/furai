@@ -45,7 +45,7 @@ class AndroidWindow : public furai::Window {
   AndroidClock* android_clock_;
 
   double time_holder;
-  int32_t frames_;
+  uint32_t frames_;
   double frame_start_time;
 };
 
