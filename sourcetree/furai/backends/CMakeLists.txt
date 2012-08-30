@@ -1,0 +1,7 @@
+if(WIN32)
+	message(STATUS "Furai: Compiling for Windows")
+	#add_subdirectory(windows)
+elseif(ANDROID)
+	message(STATUS "Furai: Compiling for Android")
+	add_subdirectory(android)
+endif(WIN32)
