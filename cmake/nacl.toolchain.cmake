@@ -31,6 +31,7 @@ include_directories("${NACL_PATH}/src")
 include_directories("${NACL_PATH}/toolchain/${NACL_TOOLCHAIN}/${NACL_TOOLCHAIN_64}/include")
 include_directories("${NACL_PATH}/toolchain/${NACL_TOOLCHAIN}/lib/gcc/${NACL_TARGET}/4.4.3/include")
 include_directories("${NACL_PATH}/toolchain/${NACL_TOOLCHAIN}/${NACL_TARGET}/include/c++/4.4.3")
+include_directories("${NACL_PATH}/toolchain/${NACL_TOOLCHAIN}/${NACL_TARGET}/include/c++/4.4.3/${NACL_TARGET}")
 
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
