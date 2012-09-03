@@ -68,7 +68,9 @@ void NaClWindow::Resize(const GLint width, const GLint height) {
   if (!opengl_context_->MakeContextCurrent(this->pp_instance_))
     return;
 
-  glViewport(0, 0, this->width_, this->height_);
+  glViewport(0, 0, width, height);
+
+  this->window_listener_->OnResize(width, height);
 }
 
 void NaClWindow::DrawFrame() {

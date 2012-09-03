@@ -49,7 +49,6 @@ namespace pp {
 /// is one instance per <embed> tag on the page.  This is the main binding
 /// point for your NaCl module with the browser.
 Module* CreateModule() {
-  printf("Coool :3\n");
   return new MyModule();  //new MinimalModule();
 }
 }  // namespace pp

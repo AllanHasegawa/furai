@@ -105,7 +105,8 @@ class HelloTri : public furai::WindowListener {
   }
 
   virtual void OnResize(const GLint width, const GLint height) {
-    glViewport(0, 0, 10, 10);
+    printf("Resize %d/%d\n", width, height);
+    glViewport(0, 0, width, height);
   }
 
   virtual void OnDestroy() {
