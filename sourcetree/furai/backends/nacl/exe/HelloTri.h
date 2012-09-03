@@ -41,6 +41,7 @@ class HelloTri : public furai::WindowListener {
   }
 
   virtual void OnCreate() {
+    using namespace furai;
 
     GLchar vShaderStr[] = "attribute vec4 vPosition; \n"
         "void main() \n"
@@ -78,11 +79,11 @@ class HelloTri : public furai::WindowListener {
       if (infoLen > 1) {
         char* infoLog = (char*) malloc(sizeof(char) * infoLen);
         glGetProgramInfoLog(programObject, infoLen, NULL, infoLog);
-        printf("Error linking program:\n%s\n", infoLog);
+        Furai::LOG->LogE("Error linking program:\n%s\n", infoLog);
         free(infoLog);
       }
       glDeleteProgram(programObject);
-      return;  // FALSE;
+      return;
     }
     // Store the program object
     this->programObject_ = programObject;
@@ -105,7 +106,8 @@ class HelloTri : public furai::WindowListener {
   }
 
   virtual void OnResize(const GLint width, const GLint height) {
-    printf("Resize %d/%d\n", width, height);
+    furai::Furai::LOG->LogV("Resized %d / %d\n", width, height);
+    furai::Furai::LOG->LogV("One-Liner");
     glViewport(0, 0, width, height);
   }
 
@@ -124,6 +126,8 @@ class HelloTri : public furai::WindowListener {
   GLuint programObject_;
 
   GLuint LoadShader(const char *shaderSrc, GLenum type) {
+    using namespace furai;
+
     GLuint shader;
     GLint compiled;
     // Create the shader object
@@ -142,7 +146,7 @@ class HelloTri : public furai::WindowListener {
       if (infoLen > 1) {
         char* infoLog = (char*) malloc(sizeof(char) * infoLen);
         glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-        printf("Error compiling shader:\n%s\n", infoLog);
+        Furai::LOG->LogE("Error compiling shader:\n%s\n", infoLog);
         free(infoLog);
       }
       glDeleteShader(shader);

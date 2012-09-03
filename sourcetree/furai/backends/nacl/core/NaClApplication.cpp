@@ -31,6 +31,7 @@
 #include <GLES2/gl2.h>
 
 #include <furai/core/Furai.h>
+#include <furai/backends/nacl/core/NaClLog.h>
 #include <furai/backends/nacl/core/NaClWindow.h>
 #include <furai/backends/nacl/core/NaClClock.h>
 
@@ -40,6 +41,9 @@ NaClApplication::NaClApplication(WindowListener* window_listener,
                                  PP_Instance pp_instance)
     : Application(window_listener),
       pp::Instance(pp_instance) {
+
+  this->log_ = new NaClLog();
+  Furai::LOG = this->log_;
 
   NaClClock* nacl_clock = new NaClClock();
   this->clock_ = nacl_clock;
