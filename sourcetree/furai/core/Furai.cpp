@@ -21,6 +21,8 @@
  -----------------------------------------------------------------------------
  */
 
+#include <cstddef>
+
 #include <furai/core/Furai.h>
 #include <furai/core/Log.h>
 #include <furai/core/Application.h>

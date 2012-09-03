@@ -1,5 +1,5 @@
 ###
-# furai/backends/android/log
+# furai/backends/android/core
 ###
 
 add_sources(

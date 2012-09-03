@@ -21,27 +21,47 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+#ifndef FURAI_HELLOTRI_H_
+#define FURAI_HELLOTRI_H_
+
+#include <stdio.h>
 
 #include <GLES2/gl2.h>
+#include <furai/core/WindowListener.h>
+#include <furai/core/Furai.h>
 
-namespace furai {
-
-class WindowListener {
+class HelloTri : public furai::WindowListener {
  public:
-  virtual ~WindowListener() {
+  HelloTri() {
+
   }
-  ;
 
-  virtual void OnCreate() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const GLint width, const GLint height) = 0;
-  virtual void OnDestroy() = 0;
+  ~HelloTri() {
 
-  virtual void OnFocusGained() = 0;
-  virtual void OnFocusLost() = 0;
+  }
+
+  virtual void OnCreate() {
+
+  }
+  virtual void OnDraw(const double delta_time) {
+    glClearColor(1.f, 1.f, 0, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
+
+  virtual void OnResize(const GLint width, const GLint height) {
+    glViewport(0, 0, width, height);
+  }
+
+  virtual void OnDestroy() {
+
+  }
+
+  virtual void OnFocusGained() {
+
+  }
+  virtual void OnFocusLost() {
+
+  }
 };
 
-}  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+#endif /* FURAI_HELLOTRI_H_ */

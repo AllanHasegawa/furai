@@ -33,6 +33,9 @@ namespace furai {
 
 class Application {
  public:
+  Application(WindowListener* window_listener)
+      : window_listener_(window_listener) {
+  }
 
   virtual ~Application() {
   }

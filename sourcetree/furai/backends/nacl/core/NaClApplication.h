@@ -21,61 +21,39 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDWINDOW_H_
-#define FURAI_ANDROIDWINDOW_H_
+#ifndef FURAI_NACLAPPLICATION_H_
+#define FURAI_NACLAPPLICATION_H_
 
-#include <android_native_app_glue.h>
+#include <ppapi/cpp/core.h>
+#include <ppapi/cpp/instance.h>
+#include <opengl_context/opengl_context_ptrs.h>
 
-#include <furai/core/Window.h>
-#include <furai/backends/android/core/AndroidClock.h>
+#include <furai/core/Application.h>
+#include <furai/core/WindowListener.h>
 
 namespace furai {
 
-class AndroidWindow : public furai::Window {
+class NaClApplication : public Application, public pp::Instance {
  public:
-  AndroidWindow(WindowListener* window_listener, android_app* app);
-  virtual ~AndroidWindow();
+  NaClApplication(WindowListener* window_listener, PP_Instance pp_instance);
+  virtual ~NaClApplication();
 
-  void Initialize();
-  void Destroy();
-  void DrawFrame();
-
-  EGLContext context() const {
-    return context_;
-  }
-
-  void set_context(EGLContext context) {
-    context_ = context;
-  }
-
-  EGLDisplay display() const {
-    return display_;
-  }
-
-  void set_display(EGLDisplay display) {
-    display_ = display;
-  }
-
-  EGLSurface surface() const {
-    return surface_;
-  }
-
-  void set_surface(EGLSurface surface) {
-    surface_ = surface;
+  void Start() {
   }
 
  private:
-  EGLDisplay display_;
-  EGLSurface surface_;
-  EGLContext context_;
+  bool Init(uint32_t argc, const char* argn[], const char* argv[]);
+  void DidChangeView(const pp::View& view);
 
-  android_app* android_app_;
-  AndroidClock* android_clock_;
+  void Update();
 
-  double time_holder;
-  uint32_t frames_;
-  double frame_start_time;
+  void UpdateScheduler(int32_t delay_in_milliseconds);
+  static void UpdateCallback(void* instance, int32_t result);
+
+ private:
+  pp::Core* pp_core_;
+  float r_, g_, b_;
 };
 
 }  // namespace furai
-#endif /* FURAI_ANDROIDWINDOW_H_ */
+#endif /* FURAI_NACLAPPLICATION_H_ */

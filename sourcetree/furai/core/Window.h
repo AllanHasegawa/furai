@@ -32,32 +32,22 @@ namespace furai {
 
 class Window {
  public:
+  Window(WindowListener* window_listener)
+      : window_listener_(window_listener) {
+
+  }
+
   virtual ~Window() {
   }
   ;
 
   virtual void Initialize() = 0;
   virtual void Destroy() = 0;
+  virtual void Resize(const GLint width, const GLint height) = 0;
   virtual void DrawFrame() = 0;
 
   uint32_t fps() {
     return this->fps_;
-  }
-
-  EGLContext context() const {
-    return context_;
-  }
-
-  void set_context(EGLContext context) {
-    context_ = context;
-  }
-
-  EGLDisplay display() const {
-    return display_;
-  }
-
-  void set_display(EGLDisplay display) {
-    display_ = display;
   }
 
   GLint height() const {
@@ -66,14 +56,6 @@ class Window {
 
   void set_height(GLint height) {
     height_ = height;
-  }
-
-  EGLSurface surface() const {
-    return surface_;
-  }
-
-  void set_surface(EGLSurface surface) {
-    surface_ = surface;
   }
 
   GLint width() const {
@@ -95,9 +77,6 @@ class Window {
  protected:
   WindowListener* window_listener_;
   double fps_;
-  EGLDisplay display_;
-  EGLSurface surface_;
-  EGLContext context_;
   GLint width_;
   GLint height_;
   bool focus_;

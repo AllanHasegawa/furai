@@ -21,27 +21,36 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+#include <stdio.h>
 
-#include <GLES2/gl2.h>
+#include <furai/backends/nacl/core/NaClApplication.h>
+#include <furai/backends/nacl/core/NaClModule.h>
+#include <furai/backends/nacl/exe/HelloTri.h>
 
-namespace furai {
-
-class WindowListener {
+class MyModule : public furai::NaClModule {
  public:
-  virtual ~WindowListener() {
+  MyModule() {
+
   }
-  ;
 
-  virtual void OnCreate() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const GLint width, const GLint height) = 0;
-  virtual void OnDestroy() = 0;
+  virtual ~MyModule() {
 
-  virtual void OnFocusGained() = 0;
-  virtual void OnFocusLost() = 0;
+  }
+
+  pp::Instance* CreateInstance(PP_Instance instance) {
+    return new furai::NaClApplication(new HelloTri(), instance);
+  }
 };
 
-}  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+namespace pp {
+/// Factory function called by the browser when the module is first loaded.
+/// The browser keeps a singleton of this module.  It calls the
+/// CreateInstance() method on the object you return to make instances.  There
+/// is one instance per <embed> tag on the page.  This is the main binding
+/// point for your NaCl module with the browser.
+Module* CreateModule() {
+  printf("Coool :3\n");
+  return new MyModule();  //new MinimalModule();
+}
+}  // namespace pp
+

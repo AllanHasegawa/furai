@@ -21,61 +21,37 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDWINDOW_H_
-#define FURAI_ANDROIDWINDOW_H_
+#ifndef FURAI_NACLWINDOW_H_
+#define FURAI_NACLWINDOW_H_
 
-#include <android_native_app_glue.h>
+#include <ppapi/cpp/instance.h>
+#include <opengl_context/opengl_context_ptrs.h>
 
 #include <furai/core/Window.h>
-#include <furai/backends/android/core/AndroidClock.h>
+#include <furai/backends/nacl/core/NaClClock.h>
 
 namespace furai {
 
-class AndroidWindow : public furai::Window {
+class NaClWindow : public furai::Window {
  public:
-  AndroidWindow(WindowListener* window_listener, android_app* app);
-  virtual ~AndroidWindow();
+  NaClWindow(pp::Instance* instance, NaClClock* clock,
+             WindowListener* window_listener);
+  virtual ~NaClWindow();
 
   void Initialize();
   void Destroy();
+  void Resize(const GLint width, const GLint height);
   void DrawFrame();
 
-  EGLContext context() const {
-    return context_;
-  }
-
-  void set_context(EGLContext context) {
-    context_ = context;
-  }
-
-  EGLDisplay display() const {
-    return display_;
-  }
-
-  void set_display(EGLDisplay display) {
-    display_ = display;
-  }
-
-  EGLSurface surface() const {
-    return surface_;
-  }
-
-  void set_surface(EGLSurface surface) {
-    surface_ = surface;
-  }
-
  private:
-  EGLDisplay display_;
-  EGLSurface surface_;
-  EGLContext context_;
+  tumbler::SharedOpenGLContext opengl_context_;
+  pp::Instance* pp_instance_;
 
-  android_app* android_app_;
-  AndroidClock* android_clock_;
-
+  NaClClock* clock_;
   double time_holder;
   uint32_t frames_;
   double frame_start_time;
 };
 
 }  // namespace furai
-#endif /* FURAI_ANDROIDWINDOW_H_ */
+#endif /* FURAI_NACLWINDOW_H_ */

@@ -21,27 +21,25 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+#ifndef FURAI_NACLCLOCK_H_
+#define FURAI_NACLCLOCK_H_
 
-#include <GLES2/gl2.h>
+#include <time.h>
+#include <furai/core/Clock.h>
 
 namespace furai {
 
-class WindowListener {
+class NaClClock : public furai::Clock {
  public:
-  virtual ~WindowListener() {
+  NaClClock();
+  virtual ~NaClClock();
+
+  inline double NowMS() {
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
   }
-  ;
-
-  virtual void OnCreate() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const GLint width, const GLint height) = 0;
-  virtual void OnDestroy() = 0;
-
-  virtual void OnFocusGained() = 0;
-  virtual void OnFocusLost() = 0;
 };
 
-}  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+}  // namespace furai
+#endif /* FURAI_NACLCLOCK_H_ */

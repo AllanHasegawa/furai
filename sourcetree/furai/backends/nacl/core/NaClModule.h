@@ -21,27 +21,22 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+#ifndef FURAI_NACLMODULE_H_
+#define FURAI_NACLMODULE_H_
 
-#include <GLES2/gl2.h>
+#include <ppapi/cpp/module.h>
 
 namespace furai {
 
-class WindowListener {
+class NaClModule : public pp::Module {
  public:
-  virtual ~WindowListener() {
-  }
-  ;
+  NaClModule();
+  virtual ~NaClModule();
 
-  virtual void OnCreate() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const GLint width, const GLint height) = 0;
-  virtual void OnDestroy() = 0;
+  virtual bool Init();
 
-  virtual void OnFocusGained() = 0;
-  virtual void OnFocusLost() = 0;
+  virtual pp::Instance* CreateInstance(PP_Instance instance) = 0;
 };
 
-}  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+}  // namespace furai
+#endif /* FURAI_NACLMODULE_H_ */

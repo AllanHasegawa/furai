@@ -21,27 +21,24 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
+
+#include "furai/backends/nacl/core/NaClModule.h"
 
 #include <GLES2/gl2.h>
+#include <ppapi/gles2/gl2ext_ppapi.h>
 
 namespace furai {
 
-class WindowListener {
- public:
-  virtual ~WindowListener() {
-  }
-  ;
+NaClModule::NaClModule()
+    : pp::Module() {
+}
 
-  virtual void OnCreate() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const GLint width, const GLint height) = 0;
-  virtual void OnDestroy() = 0;
+NaClModule::~NaClModule() {
+  glTerminatePPAPI();
+}
 
-  virtual void OnFocusGained() = 0;
-  virtual void OnFocusLost() = 0;
-};
+bool NaClModule::Init() {
+  return glInitializePPAPI(get_browser_interface()) == GL_TRUE;
+}
 
-}  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+}  // namespace furai

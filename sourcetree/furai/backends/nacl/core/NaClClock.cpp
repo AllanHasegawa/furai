@@ -21,27 +21,14 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_WINDOWLISTENER_H_
-#define FURAI_WINDOWLISTENER_H_
-
-#include <GLES2/gl2.h>
+#include "furai/backends/nacl/core/NaClClock.h"
 
 namespace furai {
 
-class WindowListener {
- public:
-  virtual ~WindowListener() {
-  }
-  ;
+NaClClock::NaClClock() {
+}
 
-  virtual void OnCreate() = 0;
-  virtual void OnDraw(const double delta_time) = 0;
-  virtual void OnResize(const GLint width, const GLint height) = 0;
-  virtual void OnDestroy() = 0;
+NaClClock::~NaClClock() {
+}
 
-  virtual void OnFocusGained() = 0;
-  virtual void OnFocusLost() = 0;
-};
-
-}  // namespace
-#endif /* FURAI_WINDOWLISTENER_H_ */
+}  // namespace furai
