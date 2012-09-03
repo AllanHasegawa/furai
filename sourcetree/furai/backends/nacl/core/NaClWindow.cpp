@@ -44,6 +44,13 @@ NaClWindow::~NaClWindow() {
 }
 
 void NaClWindow::Initialize() {
+  if (opengl_context_ == NULL)
+    opengl_context_.reset(new tumbler::OpenGLContext(this->pp_instance_));
+  opengl_context_->InvalidateContext(this->pp_instance_);
+  if (!opengl_context_->MakeContextCurrent(this->pp_instance_))
+    return;
+
+  glClearColor(0.3f, 0.3f, 0.3f, 1.f);
 }
 
 void NaClWindow::Destroy() {

@@ -56,6 +56,10 @@ NaClApplication::~NaClApplication() {
 
 bool NaClApplication::Init(uint32_t argc, const char* argn[],
                            const char* argv[]) {
+
+  this->window_->Initialize();
+  this->window_listener_->OnCreate();
+
   this->pp_core_ = pp::Module::Get()->core();
   this->UpdateScheduler(0);
   return true;
