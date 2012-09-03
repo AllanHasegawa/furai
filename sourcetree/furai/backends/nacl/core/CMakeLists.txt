@@ -7,5 +7,6 @@ add_sources(
     NaClModule.cpp
     NaClWindow.cpp
     NaClClock.cpp
-    NaClLog.cpp
+    NaClLogJSConsole.cpp
+    NaClLogEnvVars.cpp
     )

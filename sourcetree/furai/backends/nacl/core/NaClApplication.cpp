@@ -31,18 +31,30 @@
 #include <GLES2/gl2.h>
 
 #include <furai/core/Furai.h>
-#include <furai/backends/nacl/core/NaClLog.h>
 #include <furai/backends/nacl/core/NaClWindow.h>
 #include <furai/backends/nacl/core/NaClClock.h>
+#include <furai/backends/nacl/core/NaClLogJSConsole.h>
+#include <furai/backends/nacl/core/NaClLogEnvVars.h>
 
 namespace furai {
 
-NaClApplication::NaClApplication(WindowListener* window_listener,
+NaClApplication::NaClApplication(NaClLogType log_type,
+                                 WindowListener* window_listener,
                                  PP_Instance pp_instance)
     : Application(window_listener),
       pp::Instance(pp_instance) {
 
-  this->log_ = new NaClLog();
+  switch (log_type) {
+    case NACL_LOG_TYPE_JS_CONSOLE:
+      this->log_ = new NaClLogJSConsole(this);
+      break;
+    case NACL_LOG_TYPE_ENV_VARS:
+      this->log_ = new NaClLogEnvVars();
+      break;
+    default:
+      this->log_ = new NaClLogJSConsole(this);
+      break;
+  }
   Furai::LOG = this->log_;
 
   NaClClock* nacl_clock = new NaClClock();
@@ -51,6 +63,8 @@ NaClApplication::NaClApplication(WindowListener* window_listener,
 
   this->window_ = new NaClWindow(this, nacl_clock, window_listener);
   Furai::WINDOW = this->window_;
+
+  this->PostMessage("NACL DEBUG!");
 }
 
 NaClApplication::~NaClApplication() {
@@ -74,9 +88,13 @@ void NaClApplication::DidChangeView(const pp::View& view) {
   this->window_->Resize(position.width(), position.height());
 }
 
+void NaClApplication::DidChangeFocus(const bool has_focus) {
+  this->window_->set_focus(has_focus);
+}
+
 void NaClApplication::Update() {
   this->window_->DrawFrame();
-  this->UpdateScheduler(17);
+  this->UpdateScheduler(0);
 }
 
 void NaClApplication::UpdateCallback(void* instance, int32_t) {

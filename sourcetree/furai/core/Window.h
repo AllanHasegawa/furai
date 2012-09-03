@@ -70,8 +70,13 @@ class Window {
     return focus_;
   }
 
-  void set_focus(bool focus) {
-    this->focus_ = focus;
+  void set_focus(bool has_focus) {
+    this->focus_ = has_focus;
+    if (has_focus) {
+      this->window_listener_->OnFocusGained();
+    } else {
+      this->window_listener_->OnFocusLost();
+    }
   }
 
  protected:

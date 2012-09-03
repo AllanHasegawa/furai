@@ -21,48 +21,22 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_NACLLOG_H_
-#define FURAI_NACLLOG_H_
-
-#include <stdarg.h>
-#include <stdio.h>
-#include <furai/core/Log.h>
+#include <string>
+#include "furai/backends/nacl/core/NaClLogJSConsole.h"
 
 namespace furai {
 
-class NaClLog : public furai::Log {
- public:
-  NaClLog();
-  virtual ~NaClLog();
+NaClLogJSConsole::NaClLogJSConsole(pp::Instance* pp_instance)
+    : kLogErrorTag_("[LOG|E] "),
+      kLogInfoTag_("[LOG|I] "),
+      kLogVerboseTag_("[LOG|V] ") {
+  this->log_level_ = LOG_VERBOSE;
+  this->buffer_ = new char[500];
+  this->pp_instance_ = pp_instance;
+}
 
-  virtual inline void LogE(const char *fmt, ...) {
-    if (this->log_level_ <= LOG_ERROR) {
-      va_list args;
-      va_start(args, fmt);
-      vfprintf(stderr, fmt, args);
-      va_end(args);
-    }
-  }
-
-  virtual inline void LogI(const char *fmt, ...) {
-    if (this->log_level_ <= LOG_INFO) {
-      va_list args;
-      va_start(args, fmt);
-      vfprintf(stdout, fmt, args);
-      va_end(args);
-    }
-  }
-
-  virtual inline void LogV(const char *fmt, ...) {
-    if (this->log_level_ <= LOG_VERBOSE) {
-      va_list args;
-      va_start(args, fmt);
-      vfprintf(stdout, fmt, args);
-      va_end(args);
-    }
-
-  }
-};
+NaClLogJSConsole::~NaClLogJSConsole() {
+  delete this->buffer_;
+}
 
 }  // namespace furai
-#endif /* FURAI_NACLLOG_H_ */

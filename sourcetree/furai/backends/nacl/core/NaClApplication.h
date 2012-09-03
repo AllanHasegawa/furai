@@ -33,9 +33,14 @@
 
 namespace furai {
 
+enum NaClLogType {
+  NACL_LOG_TYPE_JS_CONSOLE,
+  NACL_LOG_TYPE_ENV_VARS
+};
+
 class NaClApplication : public Application, public pp::Instance {
  public:
-  NaClApplication(WindowListener* window_listener, PP_Instance pp_instance);
+  NaClApplication(NaClLogType log_type, WindowListener* window_listener, PP_Instance pp_instance);
   virtual ~NaClApplication();
 
   void Start() {
@@ -44,6 +49,7 @@ class NaClApplication : public Application, public pp::Instance {
  private:
   bool Init(uint32_t argc, const char* argn[], const char* argv[]);
   void DidChangeView(const pp::View& view);
+  void DidChangeFocus(const bool has_focus);
 
   void Update();
 
@@ -52,7 +58,6 @@ class NaClApplication : public Application, public pp::Instance {
 
  private:
   pp::Core* pp_core_;
-  float r_, g_, b_;
 };
 
 }  // namespace furai

@@ -64,7 +64,6 @@ class Application {
   WindowListener* window_listener_;
   Log* log_;
   Clock* clock_;
-  bool focus_;
 };
 
 }  // namespace

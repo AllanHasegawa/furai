@@ -21,15 +21,47 @@
  -----------------------------------------------------------------------------
  */
 
-#include "furai/backends/nacl/core/NaClLog.h"
+#ifndef FURAI_NACLLOGENVVARS_H_
+#define FURAI_NACLLOGENVVARS_H_
+
+#include <stdarg.h>
+#include <stdio.h>
+#include <furai/core/Log.h>
 
 namespace furai {
 
-NaClLog::NaClLog() {
-  this->log_level_ = LOG_VERBOSE;
-}
+class NaClLogEnvVars : public furai::Log {
+ public:
+  NaClLogEnvVars();
+  virtual ~NaClLogEnvVars();
 
-NaClLog::~NaClLog() {
-}
+  virtual inline void LogE(const char *fmt, ...) {
+    if (this->log_level_ <= LOG_ERROR) {
+      va_list args;
+      va_start(args, fmt);
+      vfprintf(stderr, fmt, args);
+      va_end(args);
+    }
+  }
+
+  virtual inline void LogI(const char *fmt, ...) {
+    if (this->log_level_ <= LOG_INFO) {
+      va_list args;
+      va_start(args, fmt);
+      vfprintf(stdout, fmt, args);
+      va_end(args);
+    }
+  }
+
+  virtual inline void LogV(const char *fmt, ...) {
+    if (this->log_level_ <= LOG_VERBOSE) {
+      va_list args;
+      va_start(args, fmt);
+      vfprintf(stdout, fmt, args);
+      va_end(args);
+    }
+  }
+};
 
 }  // namespace furai
+#endif /* FURAI_NACLLOGENVVARS_H_ */

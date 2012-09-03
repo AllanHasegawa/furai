@@ -90,7 +90,9 @@ class HelloTri : public furai::WindowListener {
   }
 
   virtual void OnDraw(const double delta_time) {
-    //glClearColor(0.3f, 0.3f, 0.3f, 1.f);
+
+    furai::Furai::LOG->LogI("Delta :3 %g\n", delta_time);
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     GLfloat vVertices[] = { 0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
@@ -107,7 +109,6 @@ class HelloTri : public furai::WindowListener {
 
   virtual void OnResize(const GLint width, const GLint height) {
     furai::Furai::LOG->LogV("Resized %d / %d\n", width, height);
-    furai::Furai::LOG->LogV("One-Liner");
     glViewport(0, 0, width, height);
   }
 
@@ -116,10 +117,10 @@ class HelloTri : public furai::WindowListener {
   }
 
   virtual void OnFocusGained() {
-
+    furai::Furai::LOG->LogV("OnFocusGained\n");
   }
   virtual void OnFocusLost() {
-
+    furai::Furai::LOG->LogV("OnFocusGained\n");
   }
 
  private:
