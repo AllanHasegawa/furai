@@ -49,7 +49,7 @@ class NaClApplication : public Application, public pp::Instance {
  private:
   bool Init(uint32_t argc, const char* argn[], const char* argv[]);
   void DidChangeView(const pp::View& view);
-  void DidChangeFocus(const bool has_focus);
+  void DidChangeFocus(bool has_focus);
 
   void Update();
 

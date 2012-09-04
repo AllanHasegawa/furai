@@ -88,7 +88,7 @@ void NaClApplication::DidChangeView(const pp::View& view) {
   this->window_->Resize(position.width(), position.height());
 }
 
-void NaClApplication::DidChangeFocus(const bool has_focus) {
+void NaClApplication::DidChangeFocus(bool has_focus) {
   this->window_->set_focus(has_focus);
 }
 

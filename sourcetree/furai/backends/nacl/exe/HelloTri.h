@@ -43,6 +43,8 @@ class HelloTri : public furai::WindowListener {
   virtual void OnCreate() {
     using namespace furai;
 
+    this->counter_ = 0;
+
     GLchar vShaderStr[] = "attribute vec4 vPosition; \n"
         "void main() \n"
         "{ \n"
@@ -90,8 +92,12 @@ class HelloTri : public furai::WindowListener {
   }
 
   virtual void OnDraw(const double delta_time) {
-
-    furai::Furai::LOG->LogI("Delta :3 %g\n", delta_time);
+    // Not nice to log every frame :3
+    this->counter_ += delta_time;
+    if (this->counter_ > 3000) {
+      furai::Furai::LOG->LogI("Delta: %g\n", delta_time);
+      this->counter_ = 0;
+    }
 
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -120,10 +126,11 @@ class HelloTri : public furai::WindowListener {
     furai::Furai::LOG->LogV("OnFocusGained\n");
   }
   virtual void OnFocusLost() {
-    furai::Furai::LOG->LogV("OnFocusGained\n");
+    furai::Furai::LOG->LogV("OnFocusLost\n");
   }
 
  private:
+  GLfloat counter_;
   GLuint programObject_;
 
   GLuint LoadShader(const char *shaderSrc, GLenum type) {
