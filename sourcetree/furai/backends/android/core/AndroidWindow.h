@@ -24,6 +24,7 @@
 #ifndef FURAI_ANDROIDWINDOW_H_
 #define FURAI_ANDROIDWINDOW_H_
 
+#include <egl/egl.h>
 #include <native_app_glue/android_native_app_glue.h>
 
 #include <furai/core/Window.h>

@@ -22,12 +22,14 @@
  */
 
 #include <EGL/egl.h>
-#include <GLES/gl.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #include <furai/core/Window.h>
 #include <furai/backends/android/core/AndroidWindow.h>
 #include <furai/core/Furai.h>
 #include <furai/backends/android/core/AndroidClock.h>
+#include <furai/graphics/EGLConfigChooser.h>
 
 namespace furai {
 
@@ -65,10 +67,13 @@ void AndroidWindow::Resize(const GLint width, const GLint height) {
   this->width_ = width;
   this->height_ = height;
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrthof(-1.0, 1.0, -1.0, 1.0f, 0.01, 10000.0);
-  glMatrixMode(GL_MODELVIEW);
+  /**
+   * GLESv1_CM NOT ALLOWED! NaCl compatibility
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glOrthof(-1.0, 1.0, -1.0, 1.0f, 0.01, 10000.0);
+   glMatrixMode(GL_MODELVIEW);
+   */
   glViewport(0, 0, this->width_, this->height_);
 
   this->window_listener_->OnResize(width, height);
@@ -133,27 +138,31 @@ bool AndroidWindow::IsRunning() {
 void AndroidWindow::InitializeOpenGLContext() {
   // initialize OpenGL ES and EGL
   Furai::LOG->LogV("AW: Initializing OpenGL Context");
-  /*
-   * Here specify the attributes of the desired configuration.
-   * Below, we select an EGLConfig with at least 8 bits per color
-   * component compatible with on-screen windows
-   */
 
-  const EGLint attribs[] = { EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_BLUE_SIZE, 8,
-      EGL_GREEN_SIZE, 8, EGL_RED_SIZE, 8, EGL_NONE };
   EGLint dummy, format;
-  EGLint numConfigs;
   EGLint width, height;
   EGLConfig config;
+  EGLint major_version, minor_version;
 
   this->display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-  eglInitialize(this->display_, 0, 0);
+  eglInitialize(this->display_, &major_version, &minor_version);
+  Furai::LOG->LogI("AW: Display %d . %d\n", major_version, minor_version);
 
-  /* Here, the application chooses the configuration it desires. In this
-   * sample, we have a very simplified selection process, where we pick
-   * the first EGLConfig that matches our criteria */
-  eglChooseConfig(this->display_, attribs, &config, 1, &numConfigs);
+  /*
+   * Try finding a EGLConfig with at least 8 bits per color compatible with
+   * on-screen windows
+   */
+
+  EGLConfigChooser config_chooser(display_, 8, 8, 8, 8, 0, 0);
+  config_chooser.PrintConfigs();
+
+  if (config_chooser.GetNumberConfigs() == 0) {
+    Furai::LOG->LogE("AW: No configuration found!");
+  }
+
+  // Let's grab for now the first available option :3
+  config = config_chooser.GetConfig(0);
 
   /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
    * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
@@ -165,11 +174,16 @@ void AndroidWindow::InitializeOpenGLContext() {
 
   this->surface_ = eglCreateWindowSurface(this->display_, config,
                                           this->android_app_->window, NULL);
-  this->context_ = eglCreateContext(this->display_, config, NULL, NULL);
+
+  const EGLint context_attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+  this->context_ = eglCreateContext(this->display_, config, EGL_NO_CONTEXT,
+                                    context_attribs);
+
+  Furai::LOG->LogV("AW Context: %d\n", this->context_);
 
   if (eglMakeCurrent(this->display_, this->surface_, this->surface_,
                      this->context_) == EGL_FALSE) {
-    Furai::LOG->LogI("AW: Unable to eglMakeCurrent");
+    Furai::LOG->LogE("AW: Unable to eglMakeCurrent");
     return;
   }
 
@@ -181,9 +195,7 @@ void AndroidWindow::InitializeOpenGLContext() {
   //eglSwapInterval(this->display_, 1);
 
   // Initialize GL state.
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
   glEnable(GL_CULL_FACE);
-  glShadeModel(GL_SMOOTH);
   glDisable(GL_DEPTH_TEST);
 
   glClearColor(0.3, 0.3, 0.3, 1);

@@ -21,36 +21,43 @@
  -----------------------------------------------------------------------------
  */
 
-#include <stdio.h>
+#ifndef FURAI_EGLCONFIGCHOOSER_H_
+#define FURAI_EGLCONFIGCHOOSER_H_
 
-#include <furai/backends/nacl/core/NaClApplication.h>
-#include <furai/backends/nacl/core/NaClModule.h>
-#include <furai/backends/nacl/exe/HelloTri.h>
+#include <map>
+#include <egl/egl.h>
 
-class MyModule : public furai::NaClModule {
+namespace furai {
+
+class EGLConfigChooser {
  public:
-  MyModule() {
+  EGLConfigChooser(const EGLDisplay display, const EGLint r, const EGLint g,
+                   const EGLint b, const EGLint a, const EGLint depth,
+                   const EGLint stencil);
+  virtual ~EGLConfigChooser();
 
-  }
+  void UpdateConfigList();
 
-  virtual ~MyModule() {
+  void SetEGLAttribute(const EGLint attribute, const EGLint value);
+  EGLint GetEGLAtrribute(const EGLint config, const EGLint attribute);
+  EGLint GetNumberConfigs();
 
-  }
+  EGLConfig GetConfig(const EGLint config);
+  void PrintConfigs();
+  void PrintConfig(const EGLint config);
 
-  pp::Instance* CreateInstance(PP_Instance instance) {
-    return new furai::NaClApplication(furai::NACL_LOG_TYPE_JS_CONSOLE,
-                                      new HelloTriangle(), instance);
-  }
+ private:
+  const EGLDisplay display_;
+  bool run_fallback_;
+
+  std::map<int, int> attributes_map_;
+
+  bool pending_update_;
+
+  const int kConfigListSize_;
+  EGLConfig* configs_;
+  EGLint num_configs_;
 };
 
-namespace pp {
-/// Factory function called by the browser when the module is first loaded.
-/// The browser keeps a singleton of this module.  It calls the
-/// CreateInstance() method on the object you return to make instances.  There
-/// is one instance per <embed> tag on the page.  This is the main binding
-/// point for your NaCl module with the browser.
-Module* CreateModule() {
-  return new MyModule();  //new MinimalModule();
-}
-}  // namespace pp
-
+}  // namespace furai
+#endif /* FURAI_EGLCONFIGCHOOSER_H_ */

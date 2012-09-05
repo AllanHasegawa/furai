@@ -21,36 +21,16 @@
  -----------------------------------------------------------------------------
  */
 
-#include <stdio.h>
+#include "furai/graphics/EGLUtils.h"
 
-#include <furai/backends/nacl/core/NaClApplication.h>
-#include <furai/backends/nacl/core/NaClModule.h>
-#include <furai/backends/nacl/exe/HelloTri.h>
+#include <egl/egl.h>
 
-class MyModule : public furai::NaClModule {
- public:
-  MyModule() {
+namespace furai {
 
-  }
-
-  virtual ~MyModule() {
-
-  }
-
-  pp::Instance* CreateInstance(PP_Instance instance) {
-    return new furai::NaClApplication(furai::NACL_LOG_TYPE_JS_CONSOLE,
-                                      new HelloTriangle(), instance);
-  }
-};
-
-namespace pp {
-/// Factory function called by the browser when the module is first loaded.
-/// The browser keeps a singleton of this module.  It calls the
-/// CreateInstance() method on the object you return to make instances.  There
-/// is one instance per <embed> tag on the page.  This is the main binding
-/// point for your NaCl module with the browser.
-Module* CreateModule() {
-  return new MyModule();  //new MinimalModule();
+EGLUtils::EGLUtils() {
 }
-}  // namespace pp
 
+EGLUtils::~EGLUtils() {
+}
+
+}  // namespace furai

@@ -30,13 +30,13 @@
 #include <furai/core/WindowListener.h>
 #include <furai/core/Furai.h>
 
-class HelloTri : public furai::WindowListener {
+class HelloTriangle : public furai::WindowListener {
  public:
-  HelloTri() {
+  HelloTriangle() {
 
   }
 
-  ~HelloTri() {
+  ~HelloTriangle() {
 
   }
 

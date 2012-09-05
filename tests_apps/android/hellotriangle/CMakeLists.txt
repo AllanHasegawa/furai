@@ -31,7 +31,8 @@ set(LIBRARY_DEPS
         log
         android
         EGL
-        GLESv1_CM
+        #GLESv1_CM
+        GLESv2
         stdc++
         m
         furai_backend_android
