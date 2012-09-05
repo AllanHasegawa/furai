@@ -34,7 +34,7 @@ class WindowListener {
   }
   ;
 
-  virtual void OnCreate() = 0;
+  virtual void OnStart() = 0;
   virtual void OnDraw(const double delta_time) = 0;
   virtual void OnResize(const GLint width, const GLint height) = 0;
   virtual void OnDestroy() = 0;

@@ -24,7 +24,7 @@
 #ifndef FURAI_WINDOW_H_
 #define FURAI_WINDOW_H_
 
-#include <egl/egl.h>
+#include <GLES2/gl2.h>
 
 #include <furai/core/WindowListener.h>
 
@@ -41,10 +41,12 @@ class Window {
   }
   ;
 
-  virtual void Initialize() = 0;
+  virtual void Start() = 0;
   virtual void Destroy() = 0;
   virtual void Resize(const GLint width, const GLint height) = 0;
-  virtual void DrawFrame() = 0;
+  virtual void Draw() = 0;
+
+  virtual bool IsRunning() = 0;
 
   uint32_t fps() {
     return this->fps_;

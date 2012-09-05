@@ -12,7 +12,7 @@ set_property(TARGET furai_backend_android PROPERTY
 	)
 
 
-set(JNIGLUE_ROOT "${CMAKE_SOURCE_DIR}/../../../external/android/native_app_glue")
+set(JNIGLUE_ROOT "${CMAKE_SOURCE_DIR}/../../../external/android")
 
 include_directories(
     ${INCLUDE_DIRECTORIES}
@@ -24,7 +24,7 @@ include_directories(
 
 set(SRCS
 	android_main.cpp
-	${JNIGLUE_ROOT}/android_native_app_glue.c
+	${JNIGLUE_ROOT}/native_app_glue/android_native_app_glue.c
 	)
 
 set(LIBRARY_DEPS

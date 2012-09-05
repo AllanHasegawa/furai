@@ -40,11 +40,13 @@ enum NaClLogType {
 
 class NaClApplication : public Application, public pp::Instance {
  public:
-  NaClApplication(NaClLogType log_type, WindowListener* window_listener, PP_Instance pp_instance);
+  NaClApplication(NaClLogType log_type, WindowListener* window_listener,
+                  PP_Instance pp_instance);
   virtual ~NaClApplication();
 
   void Start() {
   }
+  ;
 
  private:
   bool Init(uint32_t argc, const char* argn[], const char* argv[]);

@@ -30,7 +30,7 @@ namespace furai {
 
 NaClWindow::NaClWindow(pp::Instance* pp_instance, NaClClock* clock,
                        WindowListener* window_listener)
-    : Window(window_listener),
+    : furai::Window(window_listener),
       pp_instance_(pp_instance),
       clock_(clock) {
 
@@ -43,7 +43,7 @@ NaClWindow::~NaClWindow() {
   this->Destroy();
 }
 
-void NaClWindow::Initialize() {
+void NaClWindow::Start() {
   if (opengl_context_ == NULL)
     opengl_context_.reset(new tumbler::OpenGLContext(this->pp_instance_));
   opengl_context_->InvalidateContext(this->pp_instance_);
@@ -51,10 +51,14 @@ void NaClWindow::Initialize() {
     return;
 
   glClearColor(0.3f, 0.3f, 0.3f, 1.f);
+
+  this->window_listener_->OnStart();
 }
 
 void NaClWindow::Destroy() {
   opengl_context_->MakeContextCurrent(this->pp_instance_);
+
+  this->window_listener_->OnDestroy();
 }
 
 void NaClWindow::Resize(const GLint width, const GLint height) {
@@ -73,7 +77,7 @@ void NaClWindow::Resize(const GLint width, const GLint height) {
   this->window_listener_->OnResize(width, height);
 }
 
-void NaClWindow::DrawFrame() {
+void NaClWindow::Draw() {
   if (opengl_context_ == NULL)
     return;
   opengl_context_->MakeContextCurrent(this->pp_instance_);

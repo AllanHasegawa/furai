@@ -21,9 +21,7 @@
  -----------------------------------------------------------------------------
  */
 
-#include <unistd.h>
-
-#include <android_native_app_glue.h>
+#include <native_app_glue/android_native_app_glue.h>
 
 #include <furai/backends/android/core/AndroidApplication.h>
 #include <furai/core/Log.h>
@@ -37,19 +35,6 @@ namespace furai {
 
 AndroidApplication::AndroidApplication(WindowListener* window_listener,
                                        android_app* app) {
-  this->Initialize(window_listener, NULL, app);
-}
-
-AndroidApplication::AndroidApplication(
-    WindowListener* window_listener,
-    AndroidFullWindowListener* full_window_listener, android_app* app) {
-  this->Initialize(window_listener, full_window_listener, app);
-}
-
-void AndroidApplication::Initialize(
-    WindowListener* window_listener,
-    AndroidFullWindowListener* full_window_listener, android_app* app) {
-
   this->log_ = new AndroidLog();
   Furai::LOG = this->log_;
   Furai::LOG->LogV("AndroidLog System failed to load! (not sarcasm)");
@@ -58,21 +43,16 @@ void AndroidApplication::Initialize(
   Furai::CLOCK = this->clock_;
   Furai::LOG->LogV("AndroidClock System loaded...");
 
-  this->window_ = new AndroidWindow(window_listener, app);
+  this->android_window_ = new AndroidWindow(window_listener, app);
+  this->window_ = this->android_window_;
   Furai::WINDOW = this->window_;
   Furai::LOG->LogV("AndroidWindow System loaded...");
 
   this->android_app_ = app;
-  this->window_listener_ = window_listener;
-  this->full_window_listener_ = full_window_listener;
 
-  this->has_full_window_listener_ = this->full_window_listener_ != NULL;
+  this->pending_window_start_ = false;
+  this->pending_window_resume_ = false;
 
-  Furai::WINDOW_LISTENER = this->window_listener_;
-
-  this->paused_ = true;
-  this->stopped_ = true;
-  this->focus_ = false;
   Furai::APP = this;
   Furai::LOG->LogV("AndroidApplication loaded...");
 }
@@ -109,15 +89,14 @@ void AndroidApplication::Start() {
     int events;
     struct android_poll_source* source;
 
-    // by default, if the user did not provide a AndroidFullWindowListener,
+    // by default, if the user did not provide a AndroidWindowListener,
     // the application will not render anything without focus to save battery.
     //
-    // Second parameter is timeout!
+    // First parameter is timeout!
     // If the timeout is zero, returns immediately without blocking.
     // If the timeout is negative, waits indefinitely until an event appears.
-    while ((ident = ALooper_pollAll(
-        !this->paused_ || this->has_full_window_listener_ ? 0 : -1, NULL,
-        &events, (void**) &source)) >= 0) {
+    while ((ident = ALooper_pollAll(this->window_->IsRunning() ? 0 : -1, NULL,
+                                    &events, (void**) &source)) >= 0) {
 
       // Process this event.
       if (source != NULL) {
@@ -144,7 +123,7 @@ void AndroidApplication::Start() {
       }
     }
 
-    this->window()->DrawFrame();
+    this->window()->Draw();
   }
 }
 
@@ -152,17 +131,16 @@ void AndroidApplication::OnCommand(android_app* app, int32_t command) {
 
   AndroidApplication* app_instance =
       static_cast<AndroidApplication*>(Furai::APP);
-  WindowListener* listener = app_instance->window_listener();
-  AndroidFullWindowListener* alistener = app_instance->full_window_listener_;
+  AndroidWindow* a_window = app_instance->android_window_;
 
   Furai::LOG->LogV("AA: cmd<%d>", command);
 
   switch (command) {
     case APP_CMD_START:
-      listener->OnCreate();
+      app_instance->pending_window_start_ = true;
       break;
     case APP_CMD_DESTROY:
-      listener->OnDestroy();
+      a_window->Destroy();
       break;
     case APP_CMD_SAVE_STATE:
       // The system has asked us to save our current state.  Do so.
@@ -172,14 +150,21 @@ void AndroidApplication::OnCommand(android_app* app, int32_t command) {
       break;
     case APP_CMD_INIT_WINDOW:
       // The window is being shown, get it ready.
-      Furai::LOG->LogV("AndroidApplication: INIT WINDOW");
       if (app_instance->android_app_->window != NULL) {
-        app_instance->window()->Initialize();
+        a_window->InitializeOpenGLContext();
+      }
+      if (app_instance->pending_window_start_) {
+        a_window->Start();
+        app_instance->pending_window_start_ = false;
+      }
+      if (app_instance->pending_window_resume_) {
+        a_window->Resume();
+        app_instance->pending_window_resume_ = false;
       }
       break;
     case APP_CMD_TERM_WINDOW:
       // The window is being hidden or closed, clean it up.
-      app_instance->window()->Destroy();
+      a_window->DestroyOpenGLContext();
       break;
     case APP_CMD_GAINED_FOCUS:
       /*
@@ -193,9 +178,7 @@ void AndroidApplication::OnCommand(android_app* app, int32_t command) {
        (1000L / 60) * 1000);
        }
        */
-      //app_instance->get_window()->set_focus(true);
-      listener->OnFocusGained();
-      app_instance->focus_ = true;
+      a_window->set_focus(true);
       break;
     case APP_CMD_LOST_FOCUS:
       /*
@@ -209,50 +192,17 @@ void AndroidApplication::OnCommand(android_app* app, int32_t command) {
        engine->animating = 0;
        engine_draw_frame (engine);
        */
-      //app_instance->get_window()->set_focus(false);
-      listener->OnFocusLost();
-      app_instance->focus_ = false;
+      a_window->set_focus(false);
       break;
     case APP_CMD_RESUME:
-      app_instance->paused_ = false;
-      app_instance->stopped_ = false;
-      if (alistener != NULL) {
-        alistener->OnResume();
-      }
+      app_instance->pending_window_resume_ = true;
       break;
     case APP_CMD_PAUSE:
-      app_instance->paused_ = true;
-      if (alistener != NULL) {
-        alistener->OnPause();
-      }
+      a_window->Pause();
       break;
     case APP_CMD_STOP:
-      app_instance->stopped_ = true;
-      if (alistener != NULL) {
-        alistener->OnStop();
-      }
+      a_window->Stop();
       break;
-  }
-
-  // If user did set a AndroidFullWindowListener we make use of
-  // all the commands :3
-  if (app_instance->full_window_listener_ != NULL) {
-
-    switch (command) {
-      case APP_CMD_RESUME:
-        app_instance->paused_ = false;
-        app_instance->stopped_ = false;
-        alistener->OnResume();
-        break;
-      case APP_CMD_PAUSE:
-        app_instance->paused_ = true;
-        alistener->OnPause();
-        break;
-      case APP_CMD_STOP:
-        app_instance->stopped_ = true;
-        alistener->OnStop();
-        break;
-    }
   }
 }
 

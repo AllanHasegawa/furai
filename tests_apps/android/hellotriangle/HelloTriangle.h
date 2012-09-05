@@ -38,11 +38,14 @@ class HelloTriangle : public furai::WindowListener {
 
   }
 
-  void OnCreate() {
+  void OnStart() {
     furai::Furai::LOG->LogV("On_Create");
 
     this->rotation = 0;
     this->accumulator = 0;
+
+
+    glClearColor(0, 0, 0, 1.f);
   }
 
   void OnDraw(const double delta_time) {
@@ -86,7 +89,6 @@ class HelloTriangle : public furai::WindowListener {
 
   void OnResize(const int width, const int height) {
     furai::Furai::LOG->LogV("On_Resize %d px by %d px", width, height);
-    glClearColor(0, 0, 0, 1);
   }
 
   void OnDestroy() {

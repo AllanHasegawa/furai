@@ -40,7 +40,7 @@ class HelloTri : public furai::WindowListener {
 
   }
 
-  virtual void OnCreate() {
+  virtual void OnStart() {
     using namespace furai;
 
     this->counter_ = 0;

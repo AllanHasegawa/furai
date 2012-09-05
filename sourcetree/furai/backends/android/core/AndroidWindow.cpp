@@ -24,14 +24,19 @@
 #include <EGL/egl.h>
 #include <GLES/gl.h>
 
+#include <furai/core/Window.h>
 #include <furai/backends/android/core/AndroidWindow.h>
 #include <furai/core/Furai.h>
 #include <furai/backends/android/core/AndroidClock.h>
 
 namespace furai {
 
-AndroidWindow::AndroidWindow(WindowListener* window_listener,
-                             android_app* app) {
+AndroidWindow::AndroidWindow(WindowListener* window_listener, android_app* app)
+    : furai::Window(window_listener) {
+
+  this->paused_ = true;
+  this->stopped_ = true;
+
   this->window_listener_ = window_listener;
   this->android_app_ = app;
   this->fps_ = 61;
@@ -39,15 +44,95 @@ AndroidWindow::AndroidWindow(WindowListener* window_listener,
 
   this->android_clock_ = static_cast<AndroidClock*>(Furai::CLOCK);
 
-  this->time_holder = this->frame_start_time = this->android_clock_->NowMS();
+  this->android_window_listener_ =
+      dynamic_cast<AndroidWindowListener*>(window_listener);
+
+  this->time_holder_ = this->frame_start_time = this->android_clock_->NowMS();
+
+  Furai::LOG->LogV(
+      this->HasAndroidWindowListener() ?
+          "AndroidWindow: Advanced" : "AndroidWindow: Simple");
 }
 
 AndroidWindow::~AndroidWindow() {
 }
 
-void AndroidWindow::Initialize() {
-  // initialize OpenGL ES and EGL
+void AndroidWindow::Start() {
+  this->window_listener_->OnStart();
+}
 
+void AndroidWindow::Resize(const GLint width, const GLint height) {
+  this->width_ = width;
+  this->height_ = height;
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrthof(-1.0, 1.0, -1.0, 1.0f, 0.01, 10000.0);
+  glMatrixMode(GL_MODELVIEW);
+  glViewport(0, 0, this->width_, this->height_);
+
+  this->window_listener_->OnResize(width, height);
+}
+
+void AndroidWindow::Destroy() {
+  this->window_listener_->OnDestroy();
+}
+
+void AndroidWindow::Draw() {
+  if (this->display_ == NULL || this->android_app_->window == NULL) {
+    return;
+  }
+
+  AndroidClock* clock = this->android_clock_;
+
+  double delta_t;
+
+  double time_now;
+
+  time_now = clock->NowMS();
+  delta_t = time_now - this->time_holder_;
+  this->time_holder_ = time_now;
+
+  eglSwapBuffers(this->display_, this->surface_);
+  this->window_listener_->OnDraw(delta_t);
+
+  ++this->frames_;
+  // Every second update "fps_"
+  if ((time_now = clock->NowMS()) - this->frame_start_time >= 1000.f) {
+    this->fps_ = this->frames_;
+    this->frame_start_time = time_now;
+    this->frames_ = 0;
+  }
+}
+
+void AndroidWindow::Resume() {
+  this->paused_ = this->stopped_ = false;
+  if (this->HasAndroidWindowListener()) {
+    this->android_window_listener_->OnResume();
+  }
+}
+
+void AndroidWindow::Pause() {
+  this->paused_ = true;
+  if (this->HasAndroidWindowListener()) {
+    this->android_window_listener_->OnPause();
+  }
+}
+
+void AndroidWindow::Stop() {
+  this->stopped_ = true;
+  if (this->HasAndroidWindowListener()) {
+    this->android_window_listener_->OnStop();
+  }
+}
+
+bool AndroidWindow::IsRunning() {
+  return !this->paused_ || this->HasAndroidWindowListener();
+}
+
+void AndroidWindow::InitializeOpenGLContext() {
+  // initialize OpenGL ES and EGL
+  Furai::LOG->LogV("AW: Initializing OpenGL Context");
   /*
    * Here specify the attributes of the desired configuration.
    * Below, we select an EGLConfig with at least 8 bits per color
@@ -58,6 +143,7 @@ void AndroidWindow::Initialize() {
       EGL_GREEN_SIZE, 8, EGL_RED_SIZE, 8, EGL_NONE };
   EGLint dummy, format;
   EGLint numConfigs;
+  EGLint width, height;
   EGLConfig config;
 
   this->display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -83,19 +169,16 @@ void AndroidWindow::Initialize() {
 
   if (eglMakeCurrent(this->display_, this->surface_, this->surface_,
                      this->context_) == EGL_FALSE) {
-    Furai::LOG->LogI("Unable to eglMakeCurrent");
+    Furai::LOG->LogI("AW: Unable to eglMakeCurrent");
     return;
   }
 
-  eglQuerySurface(this->display_, this->surface_, EGL_WIDTH, &this->width_);
-  eglQuerySurface(this->display_, this->surface_, EGL_HEIGHT, &this->height_);
+  eglQuerySurface(this->display_, this->surface_, EGL_WIDTH, &width);
+  eglQuerySurface(this->display_, this->surface_, EGL_HEIGHT, &height);
 
   // VSync
   // Looks broken at this moment for a Galaxy Note stock 4.0.3
   //eglSwapInterval(this->display_, 1);
-
-  Furai::LOG->LogV("Display Size: %dpx by %dpx", (int) this->width_,
-                   (int) this->height_);
 
   // Initialize GL state.
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
@@ -105,18 +188,14 @@ void AndroidWindow::Initialize() {
 
   glClearColor(0.3, 0.3, 0.3, 1);
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrthof(-1.0, 1.0, -1.0, 1.0f, 0.01, 10000.0);
-  glMatrixMode(GL_MODELVIEW);
-  glViewport(0, 0, this->width_, this->height_);
-
-  this->window_listener_->OnResize(this->width_, this->height_);
+  this->Resize(width, height);
 
   return;
 }
 
-void AndroidWindow::Destroy() {
+void AndroidWindow::DestroyOpenGLContext() {
+  Furai::LOG->LogV("AW: Destroying OpenGL Context");
+
   if (this->display_ != EGL_NO_DISPLAY) {
     eglMakeCurrent(this->display_, EGL_NO_SURFACE, EGL_NO_SURFACE,
                    EGL_NO_CONTEXT);
@@ -131,33 +210,6 @@ void AndroidWindow::Destroy() {
   this->display_ = EGL_NO_DISPLAY;
   this->context_ = EGL_NO_CONTEXT;
   this->surface_ = EGL_NO_SURFACE;
-}
-
-void AndroidWindow::DrawFrame() {
-  if (this->display_ == NULL || this->android_app_->window == NULL) {
-    return;
-  }
-
-  AndroidClock* clock = this->android_clock_;
-
-  double delta_t;
-
-  double time_now;
-
-  time_now = clock->NowMS();
-  delta_t = time_now - this->time_holder;
-  this->time_holder = time_now;
-
-  eglSwapBuffers(this->display_, this->surface_);
-  this->window_listener_->OnDraw(delta_t);
-
-  ++this->frames_;
-  // Every second update "fps_"
-  if ((time_now = clock->NowMS()) - this->frame_start_time >= 1000.f) {
-    this->fps_ = this->frames_;
-    this->frame_start_time = time_now;
-    this->frames_ = 0;
-  }
 }
 
 }  // namespace furai

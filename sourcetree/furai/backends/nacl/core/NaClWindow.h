@@ -38,10 +38,14 @@ class NaClWindow : public furai::Window {
              WindowListener* window_listener);
   virtual ~NaClWindow();
 
-  void Initialize();
+  void Start();
   void Destroy();
   void Resize(const GLint width, const GLint height);
-  void DrawFrame();
+  void Draw();
+
+  bool IsRunning() {
+    return true;
+  }
 
  private:
   tumbler::SharedOpenGLContext opengl_context_;

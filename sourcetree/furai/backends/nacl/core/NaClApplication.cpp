@@ -41,8 +41,7 @@ namespace furai {
 NaClApplication::NaClApplication(NaClLogType log_type,
                                  WindowListener* window_listener,
                                  PP_Instance pp_instance)
-    : Application(window_listener),
-      pp::Instance(pp_instance) {
+    : pp::Instance(pp_instance) {
 
   switch (log_type) {
     case NACL_LOG_TYPE_JS_CONSOLE:
@@ -56,6 +55,7 @@ NaClApplication::NaClApplication(NaClLogType log_type,
       break;
   }
   Furai::LOG = this->log_;
+  Furai::LOG->LogV("NA: Starting internal systems..");
 
   NaClClock* nacl_clock = new NaClClock();
   this->clock_ = nacl_clock;
@@ -63,20 +63,18 @@ NaClApplication::NaClApplication(NaClLogType log_type,
 
   this->window_ = new NaClWindow(this, nacl_clock, window_listener);
   Furai::WINDOW = this->window_;
-
-  this->PostMessage("NACL DEBUG!");
 }
 
 NaClApplication::~NaClApplication() {
   delete this->window_;
   delete this->clock_;
+  delete this->log_;
 }
 
 bool NaClApplication::Init(uint32_t argc, const char* argn[],
                            const char* argv[]) {
 
-  this->window_->Initialize();
-  this->window_listener_->OnCreate();
+  this->window_->Start();
 
   this->pp_core_ = pp::Module::Get()->core();
   this->UpdateScheduler(0);
@@ -93,7 +91,7 @@ void NaClApplication::DidChangeFocus(bool has_focus) {
 }
 
 void NaClApplication::Update() {
-  this->window_->DrawFrame();
+  this->window_->Draw();
   this->UpdateScheduler(0);
 }
 

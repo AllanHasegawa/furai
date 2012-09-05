@@ -21,16 +21,16 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDFULLWINDOWLISTENER_H_
-#define FURAI_ANDROIDFULLWINDOWLISTENER_H_
+#ifndef FURAI_ANDROIDWINDOWLISTENER_H_
+#define FURAI_ANDROIDWINDOWLISTENER_H_
 
 namespace furai {
 
-class AndroidFullWindowListener {
+class AndroidWindowListener {
  public:
-  virtual ~AndroidFullWindowListener() {
+  virtual ~AndroidWindowListener() {
+
   }
-  ;
 
   virtual void OnResume() = 0;
   virtual void OnPause() = 0;
@@ -39,4 +39,4 @@ class AndroidFullWindowListener {
 
 }  // namespace
 
-#endif /* FURAI_ANDROIDFULLWINDOWLISTENER_H_ */
+#endif /* FURAI_ANDROIDWINDOWLISTENER_H_ */
