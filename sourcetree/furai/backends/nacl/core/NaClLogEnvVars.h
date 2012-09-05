@@ -21,22 +21,47 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDFULLWINDOWLISTENER_H_
-#define FURAI_ANDROIDFULLWINDOWLISTENER_H_
+#ifndef FURAI_NACLLOGENVVARS_H_
+#define FURAI_NACLLOGENVVARS_H_
+
+#include <stdarg.h>
+#include <stdio.h>
+#include <furai/core/Log.h>
 
 namespace furai {
 
-class AndroidFullWindowListener {
+class NaClLogEnvVars : public furai::Log {
  public:
-  virtual ~AndroidFullWindowListener() {
-  }
-  ;
+  NaClLogEnvVars();
+  virtual ~NaClLogEnvVars();
 
-  virtual void OnResume() = 0;
-  virtual void OnPause() = 0;
-  virtual void OnStop() = 0;
+  virtual inline void LogE(const char *fmt, ...) {
+    if (this->log_level_ <= LOG_ERROR) {
+      va_list args;
+      va_start(args, fmt);
+      vfprintf(stderr, fmt, args);
+      va_end(args);
+    }
+  }
+
+  virtual inline void LogI(const char *fmt, ...) {
+    if (this->log_level_ <= LOG_INFO) {
+      va_list args;
+      va_start(args, fmt);
+      vfprintf(stdout, fmt, args);
+      va_end(args);
+    }
+  }
+
+  virtual inline void LogV(const char *fmt, ...) {
+    if (this->log_level_ <= LOG_VERBOSE) {
+      va_list args;
+      va_start(args, fmt);
+      vfprintf(stdout, fmt, args);
+      va_end(args);
+    }
+  }
 };
 
-}  // namespace
-
-#endif /* FURAI_ANDROIDFULLWINDOWLISTENER_H_ */
+}  // namespace furai
+#endif /* FURAI_NACLLOGENVVARS_H_ */

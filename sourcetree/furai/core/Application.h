@@ -33,7 +33,6 @@ namespace furai {
 
 class Application {
  public:
-
   virtual ~Application() {
   }
   ;
@@ -52,16 +51,10 @@ class Application {
     return this->window_;
   }
 
-  WindowListener* window_listener() const {
-    return this->window_listener_;
-  }
-
  protected:
   Window* window_;
-  WindowListener* window_listener_;
   Log* log_;
   Clock* clock_;
-  bool focus_;
 };
 
 }  // namespace

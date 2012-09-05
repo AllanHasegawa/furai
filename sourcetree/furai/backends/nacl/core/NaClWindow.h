@@ -21,38 +21,41 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDAPPLICATION_H_
-#define FURAI_ANDROIDAPPLICATION_H_
+#ifndef FURAI_NACLWINDOW_H_
+#define FURAI_NACLWINDOW_H_
 
-#include <native_app_glue/android_native_app_glue.h>
+#include <ppapi/cpp/instance.h>
+#include <opengl_context/opengl_context_ptrs.h>
 
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
-#include <furai/backends/android/core/AndroidWindow.h>
-
+#include <furai/core/Window.h>
+#include <furai/backends/nacl/core/NaClClock.h>
 
 namespace furai {
 
-class AndroidApplication : public Application {
+class NaClWindow : public furai::Window {
  public:
-
-  AndroidApplication(WindowListener* window_listener, android_app* app);
-  virtual ~AndroidApplication();
+  NaClWindow(pp::Instance* instance, NaClClock* clock,
+             WindowListener* window_listener);
+  virtual ~NaClWindow();
 
   void Start();
+  void Destroy();
+  void Resize(const GLint width, const GLint height);
+  void Draw();
+
+  bool IsRunning() {
+    return true;
+  }
 
  private:
-  android_app* android_app_;
-  AndroidWindow* android_window_;
+  tumbler::SharedOpenGLContext opengl_context_;
+  pp::Instance* pp_instance_;
 
-
-  bool pending_window_start_;
-  bool pending_window_resume_;
-
-  static void OnCommand(android_app* app, int32_t command);
-  static int32_t OnInputEvent(android_app* app, AInputEvent* event);
+  NaClClock* clock_;
+  double time_holder;
+  uint32_t frames_;
+  double frame_start_time;
 };
 
 }  // namespace furai
-
-#endif /* FURAI_ANDROIDAPPLICATION_H_ */
+#endif /* FURAI_NACLWINDOW_H_ */

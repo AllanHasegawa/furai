@@ -24,10 +24,11 @@
 #ifndef FURAI_ANDROIDWINDOW_H_
 #define FURAI_ANDROIDWINDOW_H_
 
-#include <android_native_app_glue.h>
+#include <native_app_glue/android_native_app_glue.h>
 
 #include <furai/core/Window.h>
 #include <furai/backends/android/core/AndroidClock.h>
+#include <furai/backends/android/core/AndroidWindowListener.h>
 
 namespace furai {
 
@@ -36,15 +37,69 @@ class AndroidWindow : public furai::Window {
   AndroidWindow(WindowListener* window_listener, android_app* app);
   virtual ~AndroidWindow();
 
-  void Initialize();
+  void Start();
+  void Resize(const GLint width, const GLint height);
   void Destroy();
-  void DrawFrame();
+  void Draw();
+
+  void Resume();
+  void Pause();
+  void Stop();
+
+  bool IsRunning();
+
+  void InitializeOpenGLContext();
+  void DestroyOpenGLContext();
+
+  inline bool HasAndroidWindowListener() {
+    return this->android_window_listener_ != NULL;
+  }
+
+  inline bool paused() {
+    return this->paused_;
+  }
+
+  inline bool stopped() {
+    return this->stopped_;
+  }
+
+  EGLContext context() const {
+    return context_;
+  }
+
+  void set_context(EGLContext context) {
+    context_ = context;
+  }
+
+  EGLDisplay display() const {
+    return display_;
+  }
+
+  void set_display(EGLDisplay display) {
+    display_ = display;
+  }
+
+  EGLSurface surface() const {
+    return surface_;
+  }
+
+  void set_surface(EGLSurface surface) {
+    surface_ = surface;
+  }
 
  private:
+  AndroidWindowListener* android_window_listener_;
+  bool paused_;
+  bool stopped_;
+
+  EGLDisplay display_;
+  EGLSurface surface_;
+  EGLContext context_;
+
   android_app* android_app_;
   AndroidClock* android_clock_;
 
-  double time_holder;
+  double time_holder_;
   uint32_t frames_;
   double frame_start_time;
 };

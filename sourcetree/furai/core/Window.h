@@ -24,7 +24,7 @@
 #ifndef FURAI_WINDOW_H_
 #define FURAI_WINDOW_H_
 
-#include <egl/egl.h>
+#include <GLES2/gl2.h>
 
 #include <furai/core/WindowListener.h>
 
@@ -32,32 +32,24 @@ namespace furai {
 
 class Window {
  public:
+  Window(WindowListener* window_listener)
+      : window_listener_(window_listener) {
+
+  }
+
   virtual ~Window() {
   }
   ;
 
-  virtual void Initialize() = 0;
+  virtual void Start() = 0;
   virtual void Destroy() = 0;
-  virtual void DrawFrame() = 0;
+  virtual void Resize(const GLint width, const GLint height) = 0;
+  virtual void Draw() = 0;
+
+  virtual bool IsRunning() = 0;
 
   uint32_t fps() {
     return this->fps_;
-  }
-
-  EGLContext context() const {
-    return context_;
-  }
-
-  void set_context(EGLContext context) {
-    context_ = context;
-  }
-
-  EGLDisplay display() const {
-    return display_;
-  }
-
-  void set_display(EGLDisplay display) {
-    display_ = display;
   }
 
   GLint height() const {
@@ -66,14 +58,6 @@ class Window {
 
   void set_height(GLint height) {
     height_ = height;
-  }
-
-  EGLSurface surface() const {
-    return surface_;
-  }
-
-  void set_surface(EGLSurface surface) {
-    surface_ = surface;
   }
 
   GLint width() const {
@@ -88,16 +72,18 @@ class Window {
     return focus_;
   }
 
-  void set_focus(bool focus) {
-    this->focus_ = focus;
+  void set_focus(bool has_focus) {
+    this->focus_ = has_focus;
+    if (has_focus) {
+      this->window_listener_->OnFocusGained();
+    } else {
+      this->window_listener_->OnFocusLost();
+    }
   }
 
  protected:
   WindowListener* window_listener_;
   double fps_;
-  EGLDisplay display_;
-  EGLSurface surface_;
-  EGLContext context_;
   GLint width_;
   GLint height_;
   bool focus_;

@@ -1,6 +1,6 @@
 #include <jni.h>
 
-#include <android_native_app_glue.h>
+#include <native_app_glue/android_native_app_glue.h>
 #include <android/native_activity.h>
 
 #include <furai/core/Application.h>
@@ -12,7 +12,7 @@ void android_main(struct android_app *app) {
 
   WindowListener* hello_triangle = new HelloTriangle();
 
-  Application* application = new AndroidApplication(hello_triangle, NULL, app);
+  Application* application = new AndroidApplication(hello_triangle, app);
 
   Furai::LOG->LogI("Initializing HelloTriangle Furai Sample");
 

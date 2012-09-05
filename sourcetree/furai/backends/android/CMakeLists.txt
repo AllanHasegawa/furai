@@ -4,6 +4,8 @@
 
 project(furai_backend_android)
 
+include_directories(${CMAKE_SOURCE_DIR}/../external/android)
+
 add_subdirectory(core)
 
 set(LIBRARY_DEPS

@@ -21,38 +21,36 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDAPPLICATION_H_
-#define FURAI_ANDROIDAPPLICATION_H_
+#include <stdio.h>
 
-#include <native_app_glue/android_native_app_glue.h>
+#include <furai/backends/nacl/core/NaClApplication.h>
+#include <furai/backends/nacl/core/NaClModule.h>
+#include <furai/backends/nacl/exe/HelloTri.h>
 
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
-#include <furai/backends/android/core/AndroidWindow.h>
-
-
-namespace furai {
-
-class AndroidApplication : public Application {
+class MyModule : public furai::NaClModule {
  public:
+  MyModule() {
 
-  AndroidApplication(WindowListener* window_listener, android_app* app);
-  virtual ~AndroidApplication();
+  }
 
-  void Start();
+  virtual ~MyModule() {
 
- private:
-  android_app* android_app_;
-  AndroidWindow* android_window_;
+  }
 
-
-  bool pending_window_start_;
-  bool pending_window_resume_;
-
-  static void OnCommand(android_app* app, int32_t command);
-  static int32_t OnInputEvent(android_app* app, AInputEvent* event);
+  pp::Instance* CreateInstance(PP_Instance instance) {
+    return new furai::NaClApplication(furai::NACL_LOG_TYPE_JS_CONSOLE,
+                                      new HelloTri(), instance);
+  }
 };
 
-}  // namespace furai
+namespace pp {
+/// Factory function called by the browser when the module is first loaded.
+/// The browser keeps a singleton of this module.  It calls the
+/// CreateInstance() method on the object you return to make instances.  There
+/// is one instance per <embed> tag on the page.  This is the main binding
+/// point for your NaCl module with the browser.
+Module* CreateModule() {
+  return new MyModule();  //new MinimalModule();
+}
+}  // namespace pp
 
-#endif /* FURAI_ANDROIDAPPLICATION_H_ */

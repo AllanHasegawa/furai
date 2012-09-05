@@ -21,38 +21,22 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDAPPLICATION_H_
-#define FURAI_ANDROIDAPPLICATION_H_
-
-#include <native_app_glue/android_native_app_glue.h>
-
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
-#include <furai/backends/android/core/AndroidWindow.h>
-
+#ifndef FURAI_ANDROIDWINDOWLISTENER_H_
+#define FURAI_ANDROIDWINDOWLISTENER_H_
 
 namespace furai {
 
-class AndroidApplication : public Application {
+class AndroidWindowListener {
  public:
+  virtual ~AndroidWindowListener() {
 
-  AndroidApplication(WindowListener* window_listener, android_app* app);
-  virtual ~AndroidApplication();
+  }
 
-  void Start();
-
- private:
-  android_app* android_app_;
-  AndroidWindow* android_window_;
-
-
-  bool pending_window_start_;
-  bool pending_window_resume_;
-
-  static void OnCommand(android_app* app, int32_t command);
-  static int32_t OnInputEvent(android_app* app, AInputEvent* event);
+  virtual void OnResume() = 0;
+  virtual void OnPause() = 0;
+  virtual void OnStop() = 0;
 };
 
-}  // namespace furai
+}  // namespace
 
-#endif /* FURAI_ANDROIDAPPLICATION_H_ */
+#endif /* FURAI_ANDROIDWINDOWLISTENER_H_ */

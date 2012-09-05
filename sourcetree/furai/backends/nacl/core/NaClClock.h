@@ -21,38 +21,25 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_ANDROIDAPPLICATION_H_
-#define FURAI_ANDROIDAPPLICATION_H_
+#ifndef FURAI_NACLCLOCK_H_
+#define FURAI_NACLCLOCK_H_
 
-#include <native_app_glue/android_native_app_glue.h>
-
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
-#include <furai/backends/android/core/AndroidWindow.h>
-
+#include <time.h>
+#include <furai/core/Clock.h>
 
 namespace furai {
 
-class AndroidApplication : public Application {
+class NaClClock : public furai::Clock {
  public:
+  NaClClock();
+  virtual ~NaClClock();
 
-  AndroidApplication(WindowListener* window_listener, android_app* app);
-  virtual ~AndroidApplication();
-
-  void Start();
-
- private:
-  android_app* android_app_;
-  AndroidWindow* android_window_;
-
-
-  bool pending_window_start_;
-  bool pending_window_resume_;
-
-  static void OnCommand(android_app* app, int32_t command);
-  static int32_t OnInputEvent(android_app* app, AInputEvent* event);
+  inline double NowMS() {
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
+  }
 };
 
 }  // namespace furai
-
-#endif /* FURAI_ANDROIDAPPLICATION_H_ */
+#endif /* FURAI_NACLCLOCK_H_ */
