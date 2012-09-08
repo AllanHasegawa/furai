@@ -28,6 +28,7 @@
 #include <furai/core/Window.h>
 #include <furai/core/Log.h>
 #include <furai/core/Clock.h>
+#include <furai/storage/FileSystem.h>
 
 namespace furai {
 
@@ -55,6 +56,7 @@ class Application {
   Window* window_;
   Log* log_;
   Clock* clock_;
+  FileSystem* file_system_;
 };
 
 }  // namespace

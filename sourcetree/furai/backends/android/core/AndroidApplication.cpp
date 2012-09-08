@@ -30,6 +30,7 @@
 #include <furai/core/Clock.h>
 #include <furai/backends/android/core/AndroidClock.h>
 #include <furai/backends/android/core/AndroidWindow.h>
+#include <furai/backends/android/storage/AndroidFileSystem.h>
 
 namespace furai {
 
@@ -42,6 +43,10 @@ AndroidApplication::AndroidApplication(WindowListener* window_listener,
   this->clock_ = new AndroidClock();
   Furai::CLOCK = this->clock_;
   Furai::LOG->LogV("AndroidClock System loaded...");
+
+  this->file_system_ = NULL;
+  this->file_system_ = new AndroidFileSystem(app->activity->assetManager);
+  Furai::FS = this->file_system_;
 
   this->android_window_ = new AndroidWindow(window_listener, app);
   this->window_ = this->android_window_;
@@ -61,6 +66,7 @@ AndroidApplication::~AndroidApplication() {
   delete this->log_;
   delete this->clock_;
   delete this->window_;
+  delete this->file_system_;
 }
 
 void AndroidApplication::Start() {

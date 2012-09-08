@@ -21,22 +21,35 @@
  -----------------------------------------------------------------------------
  */
 
-#include <cstddef>
+#ifndef FURAI_INTERNALFILE_H_
+#define FURAI_INTERNALFILE_H_
 
-#include <furai/core/Furai.h>
-#include <furai/core/Log.h>
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
-#include <furai/core/Window.h>
-#include <furai/storage/FileSystem.h>
+#include <string>
+#include <furai/storage/File.h>
 
 namespace furai {
 
-Application* Furai::APP = NULL;
-Log* Furai::LOG = NULL;
-WindowListener* Furai::WINDOW_LISTENER = NULL;
-Clock* Furai::CLOCK = NULL;
-Window* Furai::WINDOW = NULL;
-FileSystem* Furai::FS = NULL;
+class InternalFile : public furai::File {
+ public:
+  InternalFile(std::string path)
+      : furai::File(path) {
 
-}  // namespace
+  }
+
+  virtual ~InternalFile() {
+
+  }
+
+  virtual void Read(const int64_t offset, const int32_t bytes_to_read,
+                    char *buffer) = 0;
+
+  int64_t bytes_read() {
+    return bytes_read_;
+  }
+
+ protected:
+  int64_t bytes_read_;
+};
+
+}  // namespace furai
+#endif /* FURAI_INTERNALFILE_H_ */

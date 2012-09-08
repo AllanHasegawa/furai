@@ -21,22 +21,22 @@
  -----------------------------------------------------------------------------
  */
 
-#include <cstddef>
+#ifndef FURAI_FILESYSTEM_H_
+#define FURAI_FILESYSTEM_H_
 
-#include <furai/core/Furai.h>
-#include <furai/core/Log.h>
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
-#include <furai/core/Window.h>
-#include <furai/storage/FileSystem.h>
+#include <tr1/memory>
+#include <furai/storage/InternalFile.h>
 
 namespace furai {
 
-Application* Furai::APP = NULL;
-Log* Furai::LOG = NULL;
-WindowListener* Furai::WINDOW_LISTENER = NULL;
-Clock* Furai::CLOCK = NULL;
-Window* Furai::WINDOW = NULL;
-FileSystem* Furai::FS = NULL;
+class FileSystem {
+ public:
+  virtual ~FileSystem() {
 
-}  // namespace
+  }
+
+  virtual InternalFile* Internal(const std::string path) = 0;
+};
+
+}  // namespace furai
+#endif /* FURAI_FILESYSTEM_H_ */
