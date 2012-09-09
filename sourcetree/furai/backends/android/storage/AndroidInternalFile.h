@@ -21,22 +21,39 @@
  -----------------------------------------------------------------------------
  */
 
-#include <cstddef>
+#ifndef FURAI_ANDROIDINTERNALFILE_H_
+#define FURAI_ANDROIDINTERNALFILE_H_
+
+#include <android/asset_manager.h>
 
 #include <furai/core/Furai.h>
-#include <furai/core/Log.h>
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
-#include <furai/core/Window.h>
-#include <furai/storage/FileSystem.h>
+#include <furai/storage/InternalFile.h>
+#include <furai/backends/android/storage/AndroidFileSystem.h>
 
 namespace furai {
 
-Application* Furai::APP = NULL;
-Log* Furai::LOG = NULL;
-WindowListener* Furai::WINDOW_LISTENER = NULL;
-Clock* Furai::CLOCK = NULL;
-Window* Furai::WINDOW = NULL;
-FileSystem* Furai::FS = NULL;
+class AndroidInternalFile : public furai::InternalFile {
+  friend class AndroidFileSystem;
+ public:
+  AndroidInternalFile(const std::string path);
+  virtual ~AndroidInternalFile();
 
-}  // namespace
+  void WaitOperationToComplete();
+
+  void Open();
+  void Read(const int64_t offset, const int32_t bytes_to_read, char *buffer);
+  void Close();
+
+ private:
+  AAsset* asset_;
+
+  pthread_mutex_t mutex_status_;
+  pthread_cond_t cond_status_;
+
+  void OpenCallback(bool success, AAsset* asset, int64_t size);
+  void ReadCallback(bool success, int64_t bytes_read);
+  void CloseCallback();
+};
+
+}  // namespace furai
+#endif /* FURAI_ANDROIDINTERNALFILE_H_ */

@@ -29,6 +29,7 @@
 #include <GLES2/gl2.h>
 #include <furai/core/WindowListener.h>
 #include <furai/core/Furai.h>
+#include <furai/storage/InternalFile.h>
 
 class HelloTriangle : public furai::WindowListener {
  public:
@@ -42,6 +43,51 @@ class HelloTriangle : public furai::WindowListener {
 
   virtual void OnStart() {
     using namespace furai;
+
+    InternalFile* file = Furai::FS->Internal("hellotriangle.txt");
+    file->Open();
+    file->WaitOperationToComplete();
+    char buffer[1000];
+    int64_t file_size = file->info().size_;
+    file->Read(0, file_size, buffer);
+    file->WaitOperationToComplete();
+    buffer[file_size] = '\0';
+    Furai::LOG->LogV("TEXT: %s\n", buffer);
+    delete file;
+    file = NULL;
+
+    /* Error */
+    file = Furai::FS->Internal("hellotriangle_not_exist.txt");
+    file->Open();
+    file->WaitOperationToComplete();
+    if (file->status() != FILE_STATUS_ERROR) {
+      file_size = file->info().size_;
+      file->Read(0, file_size, buffer);
+      file->WaitOperationToComplete();
+      if (file->status() != FILE_STATUS_ERROR) {
+        buffer[file_size] = '\0';
+        Furai::LOG->LogV("TEXT: %s\n", buffer);
+      }
+    }
+    delete file;
+    file = NULL;
+
+    /* Error Close twice! */
+    file = Furai::FS->Internal("hellotriangle.txt");
+    file->Open();
+    file->WaitOperationToComplete();
+    if (file->status() != FILE_STATUS_ERROR) {
+      file_size = file->info().size_;
+      file->Read(0, file_size, buffer);
+      file->WaitOperationToComplete();
+      if (file->status() != FILE_STATUS_ERROR) {
+        buffer[file_size] = '\0';
+        Furai::LOG->LogV("TEXT: %s\n", buffer);
+      }
+    }
+    file->Close();
+    delete file;
+    file = NULL;
 
     this->counter_ = 0;
 

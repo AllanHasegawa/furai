@@ -21,22 +21,16 @@
  -----------------------------------------------------------------------------
  */
 
-#include <cstddef>
-
-#include <furai/core/Furai.h>
-#include <furai/core/Log.h>
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
-#include <furai/core/Window.h>
-#include <furai/storage/FileSystem.h>
+#include "furai/storage/InternalFile.h"
 
 namespace furai {
 
-Application* Furai::APP = NULL;
-Log* Furai::LOG = NULL;
-WindowListener* Furai::WINDOW_LISTENER = NULL;
-Clock* Furai::CLOCK = NULL;
-Window* Furai::WINDOW = NULL;
-FileSystem* Furai::FS = NULL;
+InternalFile::InternalFile(const std::string path)
+    : furai::File(path) {
 
-}  // namespace
+}
+
+InternalFile::~InternalFile() {
+}
+
+}  // namespace furai
