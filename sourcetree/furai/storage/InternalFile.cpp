@@ -25,13 +25,12 @@
 
 namespace furai {
 
-InternalFile::InternalFile() {
-  // TODO Auto-generated constructor stub
+InternalFile::InternalFile(const std::string path)
+    : furai::File(path) {
 
 }
 
 InternalFile::~InternalFile() {
-  // TODO Auto-generated destructor stub
 }
 
 }  // namespace furai

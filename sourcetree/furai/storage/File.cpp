@@ -25,13 +25,12 @@
 
 namespace furai {
 
-File::File() {
-  // TODO Auto-generated constructor stub
+File::File(const std::string path)
+    : path_(path) {
 
 }
 
 File::~File() {
-  // TODO Auto-generated destructor stub
 }
 
 }  // namespace furai

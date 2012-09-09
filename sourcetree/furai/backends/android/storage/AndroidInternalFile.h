@@ -35,47 +35,24 @@ namespace furai {
 class AndroidInternalFile : public furai::InternalFile {
   friend class AndroidFileSystem;
  public:
-  AndroidInternalFile(const std::string path)
-      : InternalFile(path) {
+  AndroidInternalFile(const std::string path);
+  virtual ~AndroidInternalFile();
 
-  }
+  void WaitOperationToComplete();
 
-  virtual ~AndroidInternalFile() {
-  }
-
-  void WaitOperationToComplete() {
-    while (this->status_ == FILE_STATUS_WORKING) {
-      sleep(1);
-    }
-  }
-
-  void Open() {
-    this->status_ = FILE_STATUS_WORKING;
-    static_cast<AndroidFileSystem*>(Furai::FS)->QueueOpen(this);
-  }
-
-  void Read(const int64_t offset, const int32_t bytes_to_read, char *buffer) {
-    this->status_ = FILE_STATUS_WORKING;
-    static_cast<AndroidFileSystem*>(Furai::FS)->QueueRead(
-        static_cast<File*>(this), this->asset_, offset, bytes_to_read, buffer);
-  }
-
-  void Close() {
-  }
+  void Open();
+  void Read(const int64_t offset, const int32_t bytes_to_read, char *buffer);
+  void Close();
 
  private:
   AAsset* asset_;
 
-  void OpenCallback(AAsset* asset, int64_t size) {
-    this->info_.size_ = size;
-    this->asset_ = asset;
-    this->status_ = FILE_STATUS_WAITING;
-  }
+  pthread_mutex_t mutex_status_;
+  pthread_cond_t cond_status_;
 
-  void ReadCallback(int64_t bytes_read) {
-    this->bytes_read_ = bytes_read;
-    this->status_ = FILE_STATUS_WAITING;
-  }
+  void OpenCallback(bool success, AAsset* asset, int64_t size);
+  void ReadCallback(bool success, int64_t bytes_read);
+  void CloseCallback();
 };
 
 }  // namespace furai

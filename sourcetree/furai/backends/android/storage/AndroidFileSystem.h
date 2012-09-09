@@ -57,9 +57,7 @@ class AndroidFileSystem : public furai::FileSystem {
   friend class AndroidInternalFile;
 
  public:
-  AndroidFileSystem(AAssetManager* asset_manager)
-
-  ;
+  AndroidFileSystem(AAssetManager* asset_manager);
 
   virtual ~AndroidFileSystem();
 
@@ -77,29 +75,10 @@ class AndroidFileSystem : public furai::FileSystem {
 
   static void* Run(void* data);
 
-  void QueueOpen(File* file) {
-    Furai::LOG->LogV("AFS: QueueOpen");
-    AndroidFSOPData data;
-    data.op_ = AFS_OP_OPEN;
-    data.file_ = file;
-    this->op_queue_.push(data);
-  }
-
-  void QueueClose(AAsset* asset) {
-
-  }
-
+  void QueueOpen(File* file);
+  void QueueClose(File* file, AAsset* asset);
   void QueueRead(File* file, AAsset* asset, const int64_t offset,
-                 const int32_t bytes_to_read, char *buffer) {
-    AndroidFSOPData data;
-    data.op_ = AFS_OP_READ;
-    data.file_ = file;
-    data.asset_ = asset;
-    data.offset_ = offset;
-    data.bytes_to_read_ = bytes_to_read;
-    data.buffer_ = buffer;
-    this->op_queue_.push(data);
-  }
+                 const int32_t bytes_to_read, char *buffer);
 };
 
 }  // namespace furai

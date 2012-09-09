@@ -53,6 +53,41 @@ class HelloTriangle : public furai::WindowListener {
     file->WaitOperationToComplete();
     buffer[file_size] = '\0';
     Furai::LOG->LogV("TEXT: %s\n", buffer);
+    delete file;
+    file = NULL;
+
+    /* Error */
+    file = Furai::FS->Internal("hellotriangle_not_exist.txt");
+    file->Open();
+    file->WaitOperationToComplete();
+    if (file->status() != FILE_STATUS_ERROR) {
+      file_size = file->info().size_;
+      file->Read(0, file_size, buffer);
+      file->WaitOperationToComplete();
+      if (file->status() != FILE_STATUS_ERROR) {
+        buffer[file_size] = '\0';
+        Furai::LOG->LogV("TEXT: %s\n", buffer);
+      }
+    }
+    delete file;
+    file = NULL;
+
+    /* Error Close twice! */
+    file = Furai::FS->Internal("hellotriangle.txt");
+    file->Open();
+    file->WaitOperationToComplete();
+    if (file->status() != FILE_STATUS_ERROR) {
+      file_size = file->info().size_;
+      file->Read(0, file_size, buffer);
+      file->WaitOperationToComplete();
+      if (file->status() != FILE_STATUS_ERROR) {
+        buffer[file_size] = '\0';
+        Furai::LOG->LogV("TEXT: %s\n", buffer);
+      }
+    }
+    file->Close();
+    delete file;
+    file = NULL;
 
     this->counter_ = 0;
 

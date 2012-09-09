@@ -31,14 +31,8 @@ namespace furai {
 
 class InternalFile : public furai::File {
  public:
-  InternalFile(std::string path)
-      : furai::File(path) {
-
-  }
-
-  virtual ~InternalFile() {
-
-  }
+  InternalFile(const std::string path);
+  virtual ~InternalFile();
 
   virtual void Read(const int64_t offset, const int32_t bytes_to_read,
                     char *buffer) = 0;

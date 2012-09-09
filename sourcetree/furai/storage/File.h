@@ -55,12 +55,8 @@ typedef struct FileInfo {
 
 class File {
  public:
-  File(std::string path)
-      : path_(path) {
-
-  }
-  virtual ~File() {
-  }
+  File(const std::string path);
+  virtual ~File();
 
   virtual void Open() = 0;
   virtual void Close() = 0;
@@ -91,7 +87,7 @@ class File {
   }
 
  protected:
-  std::string path_;
+  const std::string path_;
   FileInfo info_;
   FileStatus status_;
 };
