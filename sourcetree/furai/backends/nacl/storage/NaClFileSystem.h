@@ -21,47 +21,30 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_NACLAPPLICATION_H_
-#define FURAI_NACLAPPLICATION_H_
+#ifndef FURAI_NACLFILESYSTEM_H_
+#define FURAI_NACLFILESYSTEM_H_
 
-#include <ppapi/cpp/core.h>
-#include <ppapi/cpp/instance.h>
-#include <opengl_context/opengl_context_ptrs.h>
+#include <string>
+#include <furai/storage/FileSystem.h>
 
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
+class InternalFile;
+
+namespace pp {
+class Instance;
+}
 
 namespace furai {
 
-enum NaClLogType {
-  NACL_LOG_TYPE_JS_CONSOLE,
-  NACL_LOG_TYPE_ENV_VARS
-};
-
-class NaClApplication : public Application, public pp::Instance {
+class NaClFileSystem : public furai::FileSystem {
  public:
-  NaClApplication(NaClLogType log_type, WindowListener* window_listener,
-                  PP_Instance pp_instance);
-  virtual ~NaClApplication();
+  NaClFileSystem(pp::Instance* instance);
+  virtual ~NaClFileSystem();
 
-  void Start() {
-  }
-  ;
+  InternalFile* Internal(const std::string path);
 
  private:
-  bool Init(uint32_t argc, const char* argn[], const char* argv[]);
-  void DidChangeView(const pp::View& view);
-  void DidChangeFocus(bool has_focus);
-
-  void Update();
-
-  void UpdateScheduler(int32_t delay_in_milliseconds);
-  static void UpdateCallback(void* instance, int32_t result);
-
- private:
-  pp::Core* pp_core_;
-  bool started_;
+  pp::Instance* pp_instance_;
 };
 
 }  // namespace furai
-#endif /* FURAI_NACLAPPLICATION_H_ */
+#endif /* FURAI_NACLFILESYSTEM_H_ */

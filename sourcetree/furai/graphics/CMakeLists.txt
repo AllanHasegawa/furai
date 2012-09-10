@@ -2,4 +2,6 @@
 # graphics
 #####
 
-add_sources(EGLConfigChooser.cpp)
+if (ANDROID)
+    add_sources(EGLConfigChooser.cpp)
+endif()

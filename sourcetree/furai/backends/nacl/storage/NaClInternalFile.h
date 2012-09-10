@@ -21,47 +21,38 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_NACLAPPLICATION_H_
-#define FURAI_NACLAPPLICATION_H_
+#ifndef FURAI_NACLINTERNALFILE_H_
+#define FURAI_NACLINTERNALFILE_H_
 
-#include <ppapi/cpp/core.h>
+#include "ppapi/cpp/url_loader.h"
+#include "ppapi/cpp/url_request_info.h"
 #include <ppapi/cpp/instance.h>
-#include <opengl_context/opengl_context_ptrs.h>
+#include <ppapi/utility/completion_callback_factory.h>
 
-#include <furai/core/Application.h>
-#include <furai/core/WindowListener.h>
+#include <furai/storage/InternalFile.h>
 
 namespace furai {
 
-enum NaClLogType {
-  NACL_LOG_TYPE_JS_CONSOLE,
-  NACL_LOG_TYPE_ENV_VARS
-};
-
-class NaClApplication : public Application, public pp::Instance {
+class NaClInternalFile : public InternalFile {
  public:
-  NaClApplication(NaClLogType log_type, WindowListener* window_listener,
-                  PP_Instance pp_instance);
-  virtual ~NaClApplication();
+  NaClInternalFile(pp::Instance* instance, const std::string path);
+  virtual ~NaClInternalFile();
 
-  void Start() {
-  }
-  ;
+  void WaitOperationToComplete();
 
- private:
-  bool Init(uint32_t argc, const char* argn[], const char* argv[]);
-  void DidChangeView(const pp::View& view);
-  void DidChangeFocus(bool has_focus);
+  void Open();
+  void Close();
 
-  void Update();
-
-  void UpdateScheduler(int32_t delay_in_milliseconds);
-  static void UpdateCallback(void* instance, int32_t result);
+  void Read(const int64_t offset, const int32_t bytes_to_read, char *buffer);
 
  private:
-  pp::Core* pp_core_;
-  bool started_;
+  pp::URLRequestInfo url_request_;
+  pp::URLLoader url_loader_;
+  pp::CompletionCallbackFactory<NaClInternalFile> cc_factory_;
+
+  void OnOpen(int32_t result);
+  void OnRead(int32_t result);
 };
 
 }  // namespace furai
-#endif /* FURAI_NACLAPPLICATION_H_ */
+#endif /* FURAI_NACLINTERNALFILE_H_ */

@@ -43,6 +43,63 @@ class HelloTriangle : public furai::WindowListener {
   virtual void OnStart() {
     using namespace furai;
 
+    Furai::LOG->LogV("HT: OnStart");
+    InternalFile* file = Furai::FS->Internal("geturl_success.html");
+    Furai::LOG->LogV("HT: OnStart");
+    file->Open();
+
+    Furai::LOG->LogV("HT: OnStart");
+    file->WaitOperationToComplete();
+    Furai::LOG->LogV("HT: OnStart");
+    /*
+     char buffer[1000];
+     int64_t file_size = file->info().size_;
+     file->Read(0, file_size, buffer);
+     file->WaitOperationToComplete();
+     buffer[file_size] = '\0';
+     Furai::LOG->LogV("TEXT: %s\n", buffer);
+     */
+    //delete file;
+    //file = NULL;
+
+    Furai::LOG->LogV("HT: OnStart");
+
+    /* Error */
+    /*
+     file = Furai::FS->Internal("hellotriangle_not_exist.txt");
+     file->Open();
+     file->WaitOperationToComplete();
+     if (file->status() != FILE_STATUS_ERROR) {
+     file_size = file->info().size_;
+     file->Read(0, file_size, buffer);
+     file->WaitOperationToComplete();
+     if (file->status() != FILE_STATUS_ERROR) {
+     buffer[file_size] = '\0';
+     Furai::LOG->LogV("TEXT: %s\n", buffer);
+     }
+     }
+     delete file;
+     file = NULL;
+
+     */
+    /* Error Close twice! */
+    /*
+     file = Furai::FS->Internal("hellotriangle.txt");
+     file->Open();
+     file->WaitOperationToComplete();
+     if (file->status() != FILE_STATUS_ERROR) {
+     file_size = file->info().size_;
+     file->Read(0, file_size, buffer);
+     file->WaitOperationToComplete();
+     if (file->status() != FILE_STATUS_ERROR) {
+     buffer[file_size] = '\0';
+     Furai::LOG->LogV("TEXT: %s\n", buffer);
+     }
+     }
+     file->Close();
+     delete file;
+     file = NULL;*/
+
     this->counter_ = 0;
 
     GLchar vShaderStr[] = "attribute vec4 vPosition; \n"
@@ -123,6 +180,7 @@ class HelloTriangle : public furai::WindowListener {
   }
 
   virtual void OnFocusGained() {
+    using namespace furai;
     furai::Furai::LOG->LogV("OnFocusGained\n");
   }
   virtual void OnFocusLost() {

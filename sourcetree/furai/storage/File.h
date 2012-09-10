@@ -25,7 +25,6 @@
 #define FURAI_FILE_H_
 
 #include <string>
-#include <android/asset_manager.h>
 
 namespace furai {
 

@@ -35,6 +35,7 @@
 #include <furai/backends/nacl/core/NaClClock.h>
 #include <furai/backends/nacl/core/NaClLogJSConsole.h>
 #include <furai/backends/nacl/core/NaClLogEnvVars.h>
+#include <furai/backends/nacl/storage/NaClFileSystem.h>
 
 namespace furai {
 
@@ -43,6 +44,7 @@ NaClApplication::NaClApplication(NaClLogType log_type,
                                  PP_Instance pp_instance)
     : pp::Instance(pp_instance) {
 
+  started_ = false;
   switch (log_type) {
     case NACL_LOG_TYPE_JS_CONSOLE:
       this->log_ = new NaClLogJSConsole(this);
@@ -57,10 +59,17 @@ NaClApplication::NaClApplication(NaClLogType log_type,
   Furai::LOG = this->log_;
   Furai::LOG->LogV("NA: Starting internal systems..");
 
+  Furai::LOG->LogV("NA: Starting Clock system..");
   NaClClock* nacl_clock = new NaClClock();
   this->clock_ = nacl_clock;
   Furai::CLOCK = this->clock_;
 
+  Furai::LOG->LogV("NA: Starting FS system..");
+  NaClFileSystem* nacl_filesystem = new NaClFileSystem(this);
+  this->file_system_ = nacl_filesystem;
+  Furai::FS = nacl_filesystem;
+
+  Furai::LOG->LogV("NA: Starting Window system..");
   this->window_ = new NaClWindow(this, nacl_clock, window_listener);
   Furai::WINDOW = this->window_;
 }
@@ -68,13 +77,14 @@ NaClApplication::NaClApplication(NaClLogType log_type,
 NaClApplication::~NaClApplication() {
   delete this->window_;
   delete this->clock_;
+  delete this->file_system_;
   delete this->log_;
 }
 
 bool NaClApplication::Init(uint32_t argc, const char* argn[],
                            const char* argv[]) {
 
-  this->window_->Start();
+  //this->window_->Start();
 
   this->pp_core_ = pp::Module::Get()->core();
   this->UpdateScheduler(0);
@@ -91,6 +101,11 @@ void NaClApplication::DidChangeFocus(bool has_focus) {
 }
 
 void NaClApplication::Update() {
+  if (!started_) {
+    this->window_->Start();
+    started_ = true;
+  }
+
   this->window_->Draw();
   this->UpdateScheduler(0);
 }

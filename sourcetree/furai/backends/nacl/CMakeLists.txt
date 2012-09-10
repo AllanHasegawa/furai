@@ -10,6 +10,7 @@ add_sources("../../../../external/nacl/opengl_context/opengl_context.cc")
 
 add_subdirectory(exe)
 add_subdirectory(core)
+add_subdirectory(storage)
 
 set(LIBRARY_DEPS
     ppapi_cpp
