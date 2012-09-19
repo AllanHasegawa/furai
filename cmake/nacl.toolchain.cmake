@@ -47,13 +47,13 @@ set(CMAKE_CXX_COMPILER "${NACL_PATH}/toolchain/${NACL_TOOLCHAIN}/bin/${NACL_CXX_
 ###
 set(NACL_WARNING_FLAGS "-Wno-long-long -Wall -Wswitch-enum -Werror -pedantic")
 # Debug
-set(CMAKE_CXX_FLAGS_DEBUG "${NACL_TARGET_FLAG} -O0 -g -pthread -std=gnu++98 ${NACL_WARNING_FLAGS}")
+set(CMAKE_CXX_FLAGS_DEBUG "${NACL_TARGET_FLAG} -O0 -g -pthread -std=c++0x ${NACL_WARNING_FLAGS}")
 # Profile
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${NACL_TARGET_FLAG} -g -O2 -pthread -std=gnu++98 -msse -mfpmath=sse -ffast-math -fomit-frame-pointer ${NACL_WARNING_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${NACL_TARGET_FLAG} -g -O2 -pthread -std=c++0x -msse -mfpmath=sse -ffast-math -fomit-frame-pointer ${NACL_WARNING_FLAGS}")
 # Deploy
-set(CMAKE_CXX_FLAGS_RELEASE "${NACL_TARGET_FLAG} -s -O3 -pthread -std=gnu++98 -msse -mfpmath=sse -ffast-math -fomit-frame-pointer ${NACL_WARNING_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${NACL_TARGET_FLAG} -s -O3 -pthread -std=c++0x -msse -mfpmath=sse -ffast-math -fomit-frame-pointer ${NACL_WARNING_FLAGS}")
 # Default == Debug
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG}")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG}")
 
 ###
 # Default Linker Flags

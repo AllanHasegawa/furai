@@ -55,12 +55,17 @@ class NaClApplication : public Application, public pp::Instance {
 
   void Update();
 
+  static void *MainLoop(void* data);
+
   void UpdateScheduler(int32_t delay_in_milliseconds);
   static void UpdateCallback(void* instance, int32_t result);
 
  private:
   pp::Core* pp_core_;
   bool started_;
+  bool destroy_;
+
+  pthread_t thread_mainloop_;
 };
 
 }  // namespace furai

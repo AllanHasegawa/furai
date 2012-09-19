@@ -23,6 +23,8 @@
 
 #include "furai/backends/nacl/core/NaClApplication.h"
 
+#include <pthread.h>
+
 #include <ppapi/cpp/instance.h>
 #include <ppapi/cpp/module.h>
 #include <ppapi/cpp/core.h>
@@ -42,7 +44,8 @@ namespace furai {
 NaClApplication::NaClApplication(NaClLogType log_type,
                                  WindowListener* window_listener,
                                  PP_Instance pp_instance)
-    : pp::Instance(pp_instance) {
+    : pp::Instance(pp_instance),
+      destroy_(false) {
 
   started_ = false;
   switch (log_type) {
@@ -72,6 +75,7 @@ NaClApplication::NaClApplication(NaClLogType log_type,
   Furai::LOG->LogV("NA: Starting Window system..");
   this->window_ = new NaClWindow(this, nacl_clock, window_listener);
   Furai::WINDOW = this->window_;
+
 }
 
 NaClApplication::~NaClApplication() {
@@ -79,12 +83,18 @@ NaClApplication::~NaClApplication() {
   delete this->clock_;
   delete this->file_system_;
   delete this->log_;
+
+  this->destroy_ = true;
+
+  //pthread_join(thread_mainloop_, NULL);
 }
 
 bool NaClApplication::Init(uint32_t argc, const char* argn[],
                            const char* argv[]) {
 
-  //this->window_->Start();
+  this->window_->Start();
+  Furai::LOG->LogV("NA: MainLoop Thread Starting...");
+  //pthread_create(&thread_mainloop_, NULL, NaClApplication::MainLoop, this);
 
   this->pp_core_ = pp::Module::Get()->core();
   this->UpdateScheduler(0);
@@ -101,13 +111,29 @@ void NaClApplication::DidChangeFocus(bool has_focus) {
 }
 
 void NaClApplication::Update() {
-  if (!started_) {
-    this->window_->Start();
-    started_ = true;
-  }
 
   this->window_->Draw();
   this->UpdateScheduler(0);
+}
+
+void Lala(void* data, int32_t result) {
+  NaClApplication* app = static_cast<NaClApplication*>(data);
+  app->PostMessage("DONE!\n\n");
+}
+
+void* NaClApplication::MainLoop(void* data) {
+  //Furai::LOG->LogV("NA: MainLoop Thread Started...");
+  NaClApplication* app = static_cast<NaClApplication*>(data);
+  app->pp_core_->CallOnMainThread(0, pp::CompletionCallback(&Lala, app));
+
+  app->window_->Start();
+  /*
+  while (!app->destroy_) {
+    app->window_->Draw();
+  }*/
+
+  pthread_exit(NULL);
+  return NULL;
 }
 
 void NaClApplication::UpdateCallback(void* instance, int32_t) {

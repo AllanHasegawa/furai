@@ -27,6 +27,7 @@
 #include <stdio.h>
 
 #include <GLES2/gl2.h>
+#include <GLES22/gl2.h>
 #include <furai/core/WindowListener.h>
 #include <furai/core/Furai.h>
 
@@ -44,12 +45,12 @@ class HelloTriangle : public furai::WindowListener {
     using namespace furai;
 
     Furai::LOG->LogV("HT: OnStart");
-    InternalFile* file = Furai::FS->Internal("geturl_success.html");
+    //InternalFile* file = Furai::FS->Internal("geturl_success.html");
     Furai::LOG->LogV("HT: OnStart");
-    file->Open();
+    //file->Open();
 
     Furai::LOG->LogV("HT: OnStart");
-    file->WaitOperationToComplete();
+    //file->WaitOperationToComplete();
     Furai::LOG->LogV("HT: OnStart");
     /*
      char buffer[1000];
@@ -163,7 +164,7 @@ class HelloTriangle : public furai::WindowListener {
     // Clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT);
     // Use the program object
-    glUseProgram(this->programObject_);
+    furai::glUseProgram(this->programObject_);
     // Load the vertex data
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
     glEnableVertexAttribArray(0);

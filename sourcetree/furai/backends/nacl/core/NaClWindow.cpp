@@ -25,6 +25,7 @@
 
 #include <opengl_context/opengl_context.h>
 #include <furai/backends/nacl/core/NaClClock.h>
+#include <furai/core/Furai.h>
 
 namespace furai {
 
@@ -44,11 +45,17 @@ NaClWindow::~NaClWindow() {
 }
 
 void NaClWindow::Start() {
-  if (opengl_context_ == NULL)
+  Furai::LOG->LogV("NW: Initializing OpenGL Context...");
+  if (opengl_context_ == NULL) {
     opengl_context_.reset(new tumbler::OpenGLContext(this->pp_instance_));
+  }
+
   opengl_context_->InvalidateContext(this->pp_instance_);
-  if (!opengl_context_->MakeContextCurrent(this->pp_instance_))
+
+  if (!opengl_context_->MakeContextCurrent(this->pp_instance_)) {
+    Furai::LOG->LogV("NW: OpenGL Context failed to be created...");
     return;
+  }
 
   glClearColor(0.3f, 0.3f, 0.3f, 1.f);
 
