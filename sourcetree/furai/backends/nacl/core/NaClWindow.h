@@ -31,6 +31,7 @@
 #include <furai/backends/nacl/core/NaClClock.h>
 
 namespace furai {
+class NaClMainThreadCalls;
 
 class NaClWindow : public furai::Window {
  public:
@@ -43,13 +44,22 @@ class NaClWindow : public furai::Window {
   void Resize(const GLint width, const GLint height);
   void Draw();
 
+  void set_main_thread_calls(NaClMainThreadCalls* main_thread_calls) {
+    main_thread_calls_ = main_thread_calls;
+  }
+
   bool IsRunning() {
     return true;
+  }
+
+  tumbler::SharedOpenGLContext opengl_context() {
+    return opengl_context_;
   }
 
  private:
   tumbler::SharedOpenGLContext opengl_context_;
   pp::Instance* pp_instance_;
+  NaClMainThreadCalls* main_thread_calls_;
 
   NaClClock* clock_;
   double time_holder;

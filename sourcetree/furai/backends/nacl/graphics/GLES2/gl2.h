@@ -21,45 +21,31 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_APPLICATION_H_
-#define FURAI_APPLICATION_H_
+#ifndef FURAI_GL2_H_
+#define FURAI_GL2_H_
 
-#include <furai/core/WindowListener.h>
-#include <furai/core/Log.h>
-#include <furai/core/Clock.h>
-#include <furai/storage/FileSystem.h>
+#include <GLES2/gl2.h>
 
+#undef glUseProgram
+#define glUseProgram(X) furai::GLES2UseProgram(X)
+
+/*
+ #define MACRO(X,Y) \
+  (__extension__ ( \
+    { \
+      __typeof__(X) __x = (X); \
+      __typeof__(Y) __y = (Y); \
+      std::cout << "1st arg is:" << __x << std::endl; \
+      std::cout << "2nd arg is:" << __y << std::endl; \
+      std::cout << "Sum is:" << (__x + __y) << std::endl; \
+      __x + __y; \
+    } \
+  ))
+ */
 namespace furai {
 
-class Window;
-
-class Application {
- public:
-  virtual ~Application() {
-  }
-  ;
-
-  virtual void Start() = 0;
-
-  Clock* clock() const {
-    return clock_;
-  }
-
-  Log* log() const {
-    return log_;
-  }
-
-  Window* window() const {
-    return this->window_;
-  }
-
- protected:
-  Window* window_;
-  Log* log_;
-  Clock* clock_;
-  FileSystem* file_system_;
-};
+void GLES2UseProgram(const GLuint &program);
 
 }  // namespace
 
-#endif /* FURAI_APPLICATION_H_ */
+#endif /* FURAI_GL2_H_ */

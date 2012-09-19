@@ -27,7 +27,8 @@
 #include <stdio.h>
 
 #include <GLES2/gl2.h>
-#include <GLES22/gl2.h>
+#include <furai/backends/nacl/graphics/GLES2/gl2.h>
+
 #include <furai/core/WindowListener.h>
 #include <furai/core/Furai.h>
 
@@ -44,14 +45,11 @@ class HelloTriangle : public furai::WindowListener {
   virtual void OnStart() {
     using namespace furai;
 
-    Furai::LOG->LogV("HT: OnStart");
+    //Furai::LOG->LogV("HT: OnStart");
     //InternalFile* file = Furai::FS->Internal("geturl_success.html");
-    Furai::LOG->LogV("HT: OnStart");
     //file->Open();
 
-    Furai::LOG->LogV("HT: OnStart");
     //file->WaitOperationToComplete();
-    Furai::LOG->LogV("HT: OnStart");
     /*
      char buffer[1000];
      int64_t file_size = file->info().size_;
@@ -62,8 +60,6 @@ class HelloTriangle : public furai::WindowListener {
      */
     //delete file;
     //file = NULL;
-
-    Furai::LOG->LogV("HT: OnStart");
 
     /* Error */
     /*
@@ -103,6 +99,7 @@ class HelloTriangle : public furai::WindowListener {
 
     this->counter_ = 0;
 
+    /*
     GLchar vShaderStr[] = "attribute vec4 vPosition; \n"
         "void main() \n"
         "{ \n"
@@ -116,7 +113,8 @@ class HelloTriangle : public furai::WindowListener {
     GLuint vertexShader;
     GLuint fragmentShader;
     GLuint programObject;
-    GLint linked;
+    GLint linked;*/
+    /*
 
     // Load the vertex/fragment shaders
     vertexShader = this->LoadShader(vShaderStr, GL_VERTEX_SHADER);
@@ -139,40 +137,40 @@ class HelloTriangle : public furai::WindowListener {
       if (infoLen > 1) {
         char* infoLog = (char*) malloc(sizeof(char) * infoLen);
         glGetProgramInfoLog(programObject, infoLen, NULL, infoLog);
-        Furai::LOG->LogE("Error linking program:\n%s\n", infoLog);
+        //Furai::LOG->LogE("Error linking program:\n%s\n", infoLog);
         free(infoLog);
       }
       glDeleteProgram(programObject);
       return;
     }
     // Store the program object
-    this->programObject_ = programObject;
+    this->programObject_ = programObject;*/
   }
 
   virtual void OnDraw(const double delta_time) {
     // Not nice to log every frame :3
     this->counter_ += delta_time;
     if (this->counter_ > 3000) {
-      furai::Furai::LOG->LogI("Delta: %g\n", delta_time);
+      //furai::Furai::LOG->LogI("Delta: %g\n", delta_time);
       this->counter_ = 0;
     }
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
 
-    GLfloat vVertices[] = { 0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-        0.0f };
+    /*GLfloat vVertices[] = { 0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+        0.0f };*/
     // Clear the color buffer
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     // Use the program object
-    furai::glUseProgram(this->programObject_);
+    //glUseProgram(this->programObject_);
     // Load the vertex data
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
-    glEnableVertexAttribArray(0);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
+    //glEnableVertexAttribArray(0);
+    //glDrawArrays(GL_TRIANGLES, 0, 3);
   }
 
   virtual void OnResize(const GLint width, const GLint height) {
-    furai::Furai::LOG->LogV("Resized %d / %d\n", width, height);
+    //furai::Furai::LOG->LogV("Resized %d / %d\n", width, height);
     glViewport(0, 0, width, height);
   }
 
@@ -182,10 +180,10 @@ class HelloTriangle : public furai::WindowListener {
 
   virtual void OnFocusGained() {
     using namespace furai;
-    furai::Furai::LOG->LogV("OnFocusGained\n");
+    //furai::Furai::LOG->LogV("OnFocusGained\n");
   }
   virtual void OnFocusLost() {
-    furai::Furai::LOG->LogV("OnFocusLost\n");
+    //furai::Furai::LOG->LogV("OnFocusLost\n");
   }
 
  private:
@@ -213,7 +211,7 @@ class HelloTriangle : public furai::WindowListener {
       if (infoLen > 1) {
         char* infoLog = (char*) malloc(sizeof(char) * infoLen);
         glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-        Furai::LOG->LogE("Error compiling shader:\n%s\n", infoLog);
+        //Furai::LOG->LogE("Error compiling shader:\n%s\n", infoLog);
         free(infoLog);
       }
       glDeleteShader(shader);

@@ -30,6 +30,7 @@
 
 #include <furai/core/Application.h>
 #include <furai/core/WindowListener.h>
+#include <furai/backends/nacl/core/mainthreadcalls/NaClMainThreadCalls.h>
 
 namespace furai {
 
@@ -47,6 +48,10 @@ class NaClApplication : public Application, public pp::Instance {
   void Start() {
   }
   ;
+
+  NaClMainThreadCalls* main_thread_calls() {
+     return main_thread_calls_;
+   }
 
  private:
   bool Init(uint32_t argc, const char* argn[], const char* argv[]);
@@ -66,6 +71,8 @@ class NaClApplication : public Application, public pp::Instance {
   bool destroy_;
 
   pthread_t thread_mainloop_;
+
+  NaClMainThreadCalls* main_thread_calls_;
 };
 
 }  // namespace furai

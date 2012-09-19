@@ -24,6 +24,9 @@
 #ifndef FURAI_FURAI_H_
 #define FURAI_FURAI_H_
 
+#include <GLES2/gl2.h>
+#include <furai/backends/nacl/graphics/GLES2/gl2.h>
+
 #include <furai/core/Log.h>
 #include <furai/core/Application.h>
 #include <furai/core/WindowListener.h>

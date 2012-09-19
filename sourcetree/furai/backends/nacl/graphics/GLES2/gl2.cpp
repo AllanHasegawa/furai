@@ -21,45 +21,22 @@
  -----------------------------------------------------------------------------
  */
 
-#ifndef FURAI_APPLICATION_H_
-#define FURAI_APPLICATION_H_
+#include <functional>
+#include <tr1/functional>
 
-#include <furai/core/WindowListener.h>
-#include <furai/core/Log.h>
-#include <furai/core/Clock.h>
-#include <furai/storage/FileSystem.h>
+#include <furai/core/Furai.h>
+#include <furai/backends/nacl/graphics/GLES2/gl2.h>
+#include <furai/backends/nacl/core/NaClApplication.h>
+#include <furai/backends/nacl/core/mainthreadcalls/NaClMainThreadCalls.h>
 
 namespace furai {
 
-class Window;
+void GLES2UseProgram(const GLuint &program) {
 
-class Application {
- public:
-  virtual ~Application() {
-  }
-  ;
+  NaClApplication* kNaClApp = static_cast<NaClApplication*>(furai::Furai::APP);
+  NaClMainThreadCalls* kNaClMainThreadCalls = kNaClApp->main_thread_calls();
+  std::tr1::function<void()> f = std::tr1::bind(::GLES2UseProgram, program);
+  kNaClMainThreadCalls->CallGLVoidFunction(f);
+}
 
-  virtual void Start() = 0;
-
-  Clock* clock() const {
-    return clock_;
-  }
-
-  Log* log() const {
-    return log_;
-  }
-
-  Window* window() const {
-    return this->window_;
-  }
-
- protected:
-  Window* window_;
-  Log* log_;
-  Clock* clock_;
-  FileSystem* file_system_;
-};
-
-}  // namespace
-
-#endif /* FURAI_APPLICATION_H_ */
+}

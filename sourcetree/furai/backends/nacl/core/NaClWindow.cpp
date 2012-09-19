@@ -26,6 +26,7 @@
 #include <opengl_context/opengl_context.h>
 #include <furai/backends/nacl/core/NaClClock.h>
 #include <furai/core/Furai.h>
+#include <furai/backends/nacl/core/mainthreadcalls/NaClMainThreadCalls.h>
 
 namespace furai {
 
@@ -59,7 +60,7 @@ void NaClWindow::Start() {
 
   glClearColor(0.3f, 0.3f, 0.3f, 1.f);
 
-  this->window_listener_->OnStart();
+  //this->window_listener_->OnStart();
 }
 
 void NaClWindow::Destroy() {
@@ -87,7 +88,6 @@ void NaClWindow::Resize(const GLint width, const GLint height) {
 void NaClWindow::Draw() {
   if (opengl_context_ == NULL)
     return;
-  opengl_context_->MakeContextCurrent(this->pp_instance_);
 
   NaClClock* clock = this->clock_;
 
@@ -99,7 +99,7 @@ void NaClWindow::Draw() {
   delta_t = time_now - this->time_holder;
   this->time_holder = time_now;
 
-  opengl_context_->FlushContext();
+  this->main_thread_calls_->CallGLContextFlush();
   this->window_listener_->OnDraw(delta_t);
 
   ++this->frames_;

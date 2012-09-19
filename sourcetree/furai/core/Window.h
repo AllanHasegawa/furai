@@ -81,6 +81,10 @@ class Window {
     }
   }
 
+  WindowListener* window_listener() {
+    return this->window_listener_;
+  }
+
  protected:
   WindowListener* window_listener_;
   double fps_;
