@@ -39,6 +39,7 @@
 #include <furai/backends/nacl/core/NaClLogEnvVars.h>
 #include <furai/backends/nacl/storage/NaClFileSystem.h>
 #include <furai/backends/nacl/core/mainthreadcalls/NaClMainThreadCalls.h>
+#include <furai/backends/nacl/core/NaClFurai.h>
 
 namespace furai {
 
@@ -95,20 +96,22 @@ NaClApplication::~NaClApplication() {
 bool NaClApplication::Init(uint32_t argc, const char* argn[],
                            const char* argv[]) {
 
-  Furai::LOG->LogV("NA: MainLoop Thread Starting...");
-
-  //NaClWindow* window = static_cast<NaClWindow*>(this->window_);
+  NaClWindow* window = static_cast<NaClWindow*>(this->window_);
 
   this->pp_core_ = pp::Module::Get()->core();
-  //this->main_thread_calls_ = new NaClMainThreadCalls(this->pp_core_, window);
 
-  //window->set_main_thread_calls(this->main_thread_calls_);
+  NaClMainThreadCalls* main_thread_calls = new NaClMainThreadCalls(
+      this->pp_core_, window);
+  this->main_thread_calls_ = main_thread_calls;
+  furai::NaClFurai::NACL_MAIN_THREAD_CALLS = main_thread_calls;
+
+  window->set_main_thread_calls(this->main_thread_calls_);
 
   this->window_->Start();
 
   Furai::LOG->LogV("NA: MainLoop Thread Starting...");
 
-  //pthread_create(&thread_mainloop_, NULL, NaClApplication::MainLoop, this);
+  pthread_create(&thread_mainloop_, NULL, NaClApplication::MainLoop, this);
 
   return true;
 }
@@ -142,7 +145,7 @@ void* NaClApplication::MainLoop(void* data) {
   app->window_->window_listener()->OnStart();
 
   //while (!app->destroy_) {
-    //app->window_->Draw();
+  //app->window_->Draw();
   //}
 
   pthread_exit(NULL);

@@ -103,7 +103,7 @@ GLenum NaClMainThreadCalls::CallGLenumFunction(
 }
 
 
-GLint NaClMainThreadCalls::CallGLIntFunction(
+GLint NaClMainThreadCalls::CallGLintFunction(
     std::tr1::function<GLint()>& f) {
   pthread_mutex_lock(&mutex_waiting_callback_);
   gl_int_func_pointer_ = &f;
@@ -140,7 +140,7 @@ GLuint NaClMainThreadCalls::CallGLuintFunction(
 }
 
 GLboolean NaClMainThreadCalls::CallGLbooleanFunction(
-    std::tr1::function<GLboolean()>& f) {
+    auto f) {
   pthread_mutex_lock(&mutex_waiting_callback_);
   gl_boolean_func_pointer_ = &f;
   waiting_callback_ = true;

@@ -11,4 +11,5 @@ add_sources(
     NaClClock.cpp
     NaClLogJSConsole.cpp
     NaClLogEnvVars.cpp
+    NaClFurai.cpp
     )

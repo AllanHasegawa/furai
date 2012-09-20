@@ -46,11 +46,11 @@ class NaClMainThreadCalls {
 
   virtual ~NaClMainThreadCalls();
 
-  void CallGLVoidFunction(std::tr1::function<void()>&);
+  void CallGLvoidFunction(std::tr1::function<void()>&);
   GLenum CallGLenumFunction(std::tr1::function<GLenum()>&);
   GLuint CallGLuintFunction(std::tr1::function<GLuint()>&);
-  int CallGLIntFunction(std::tr1::function<int()>&);
-  GLboolean CallGLbooleanFunction(std::tr1::function<GLboolean()>&);
+  int CallGLintFunction(std::tr1::function<int()>&);
+  GLboolean CallGLbooleanFunction(T& f);
   void CallGLContextFlush();
   void SyncGLVoidFunctions();
 
@@ -89,7 +89,7 @@ class NaClMainThreadCalls {
 
 };
 
-inline void NaClMainThreadCalls::CallGLVoidFunction(
+inline void NaClMainThreadCalls::CallGLvoidFunction(
     std::tr1::function<void()>& f) {
   if (number_gl_void_functions_ == kMaxGLVoidFunctions_) {
     SyncGLVoidFunctions();
