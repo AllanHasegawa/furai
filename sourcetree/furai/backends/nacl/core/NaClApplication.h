@@ -50,10 +50,32 @@ class NaClApplication : public Application, public pp::Instance {
   ;
 
   NaClMainThreadCalls* main_thread_calls() {
-     return main_thread_calls_;
-   }
+    return main_thread_calls_;
+  }
+  pp::Core* pp_core_;
+  static void Lala(void* data, int32_t result) {
+    NaClApplication* app = static_cast<NaClApplication*>(data);
+    app->PostMessage("DONE!\n\n");
+  }
+  static void Lalh(void* data, int32_t result) {
+    NaClApplication* app = static_cast<NaClApplication*>(data);
+    app->PostMessage("DONSADASDASDE!\n\n");
+  }
+
+  static void MainLoopDealy(void* data, int32_t result) {
+    NaClApplication* app = static_cast<NaClApplication*>(data);
+    pthread_create(&(app->thread_mainloop_), NULL, NaClApplication::MainLoop,
+                   app);
+  }
 
  private:
+  bool started_;
+  bool destroy_;
+
+  pthread_t thread_mainloop_;
+
+  NaClMainThreadCalls* main_thread_calls_;
+
   bool Init(uint32_t argc, const char* argn[], const char* argv[]);
   void DidChangeView(const pp::View& view);
   void DidChangeFocus(bool has_focus);
@@ -64,15 +86,6 @@ class NaClApplication : public Application, public pp::Instance {
 
   void UpdateScheduler(int32_t delay_in_milliseconds);
   static void UpdateCallback(void* instance, int32_t result);
-
- private:
-  pp::Core* pp_core_;
-  bool started_;
-  bool destroy_;
-
-  pthread_t thread_mainloop_;
-
-  NaClMainThreadCalls* main_thread_calls_;
 };
 
 }  // namespace furai

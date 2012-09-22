@@ -26,9 +26,10 @@
 
 #include <stdio.h>
 
-#include <GLES2/gl2.h>
 #include <furai/backends/nacl/graphics/GLES2/gl2.h>
+#include <GLES2/gl2.h>
 
+#include <furai/backends/nacl/core/NaClApplication.h>
 #include <furai/core/WindowListener.h>
 #include <furai/core/Furai.h>
 
@@ -42,8 +43,19 @@ class HelloTriangle : public furai::WindowListener {
 
   }
 
+  static void Lalu(void* data, int32_t result) {
+    using namespace furai;
+    NaClApplication* app = static_cast<NaClApplication*>(furai::Furai::APP);
+    app->PostMessage("DON!!!!!!!E!\n\n");
+  }
+
   virtual void OnStart() {
     using namespace furai;
+
+    //Furai::LOG->LogV("HT: Start");
+    NaClApplication* app = static_cast<NaClApplication*>(Furai::APP);
+    pp::Module::Get()->core()->CallOnMainThread(
+        0, pp::CompletionCallback(&Lalu, app));
 
     //Furai::LOG->LogV("HT: OnStart");
     //InternalFile* file = Furai::FS->Internal("geturl_success.html");
@@ -60,7 +72,6 @@ class HelloTriangle : public furai::WindowListener {
      */
     //delete file;
     //file = NULL;
-
     /* Error */
     /*
      file = Furai::FS->Internal("hellotriangle_not_exist.txt");
@@ -100,51 +111,51 @@ class HelloTriangle : public furai::WindowListener {
     this->counter_ = 0;
 
     /*
-    GLchar vShaderStr[] = "attribute vec4 vPosition; \n"
-        "void main() \n"
-        "{ \n"
-        " gl_Position = vPosition; \n"
-        "} \n";
-    GLchar fShaderStr[] = "precision mediump float; \n"
-        "void main() \n"
-        "{ \n"
-        " gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); \n"
-        "} \n";
-    GLuint vertexShader;
-    GLuint fragmentShader;
-    GLuint programObject;
-    GLint linked;*/
-    /*
+     GLchar vShaderStr[] = "attribute vec4 vPosition; \n"
+     "void main() \n"
+     "{ \n"
+     " gl_Position = vPosition; \n"
+     "} \n";
+     GLchar fShaderStr[] = "precision mediump float; \n"
+     "void main() \n"
+     "{ \n"
+     " gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); \n"
+     "} \n";
+     GLuint vertexShader;
+     GLuint fragmentShader;
+     //GLuint programObject;
+     //GLint linked;
 
-    // Load the vertex/fragment shaders
-    vertexShader = this->LoadShader(vShaderStr, GL_VERTEX_SHADER);
-    fragmentShader = this->LoadShader(fShaderStr, GL_FRAGMENT_SHADER);
-    // Create the program object
-    programObject = glCreateProgram();
-    if (programObject == 0)
-      return;  // 0;
-    glAttachShader(programObject, vertexShader);
-    glAttachShader(programObject, fragmentShader);
-    // Bind vPosition to attribute 0
-    glBindAttribLocation(programObject, 0, "vPosition");
-    // Link the program
-    glLinkProgram(programObject);
-    // Check the link status
-    glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
-    if (!linked) {
-      GLint infoLen = 0;
-      glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &infoLen);
-      if (infoLen > 1) {
-        char* infoLog = (char*) malloc(sizeof(char) * infoLen);
-        glGetProgramInfoLog(programObject, infoLen, NULL, infoLog);
-        //Furai::LOG->LogE("Error linking program:\n%s\n", infoLog);
-        free(infoLog);
-      }
-      glDeleteProgram(programObject);
-      return;
-    }
-    // Store the program object
-    this->programObject_ = programObject;*/
+     // Load the vertex/fragment shaders
+     vertexShader = this->LoadShader(vShaderStr, GL_VERTEX_SHADER);
+     fragmentShader = this->LoadShader(fShaderStr, GL_FRAGMENT_SHADER);
+     / ****
+     // Create the program object
+     programObject = glCreateProgram();
+     if (programObject == 0)
+     return;  // 0;
+     glAttachShader(programObject, vertexShader);
+     glAttachShader(programObject, fragmentShader);
+     // Bind vPosition to attribute 0
+     glBindAttribLocation(programObject, 0, "vPosition");
+     // Link the program
+     glLinkProgram(programObject);
+     // Check the link status
+     glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
+     if (!linked) {
+     GLint infoLen = 0;
+     glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &infoLen);
+     if (infoLen > 1) {
+     char* infoLog = (char*) malloc(sizeof(char) * infoLen);
+     glGetProgramInfoLog(programObject, infoLen, NULL, infoLog);
+     //Furai::LOG->LogE("Error linking program:\n%s\n", infoLog);
+     free(infoLog);
+     }
+     glDeleteProgram(programObject);
+     return;
+     }
+     // Store the program object
+     this->programObject_ = programObject;*/
   }
 
   virtual void OnDraw(const double delta_time) {
@@ -155,18 +166,19 @@ class HelloTriangle : public furai::WindowListener {
       this->counter_ = 0;
     }
 
-    //glClear(GL_COLOR_BUFFER_BIT);
+    /*
+     glClear(GL_COLOR_BUFFER_BIT);
 
-    /*GLfloat vVertices[] = { 0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-        0.0f };*/
-    // Clear the color buffer
-    //glClear(GL_COLOR_BUFFER_BIT);
-    // Use the program object
-    //glUseProgram(this->programObject_);
-    // Load the vertex data
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
-    //glEnableVertexAttribArray(0);
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
+     GLfloat vVertices[] = { 0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+     0.0f };
+     // Clear the color buffer
+     glClear(GL_COLOR_BUFFER_BIT);
+     // Use the program object
+     glUseProgram(this->programObject_);
+     // Load the vertex data
+     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
+     glEnableVertexAttribArray(0);
+     glDrawArrays(GL_TRIANGLES, 0, 3);*/
   }
 
   virtual void OnResize(const GLint width, const GLint height) {
@@ -194,11 +206,12 @@ class HelloTriangle : public furai::WindowListener {
     using namespace furai;
 
     GLuint shader;
-    GLint compiled;
+    //GLint compiled;
     // Create the shader object
     shader = glCreateShader(type);
     if (shader == 0)
       return 0;
+    /*
     // Load the shader source
     glShaderSource(shader, 1, &shaderSrc, NULL);
     // Compile the shader
@@ -216,7 +229,7 @@ class HelloTriangle : public furai::WindowListener {
       }
       glDeleteShader(shader);
       return 0;
-    }
+    }*/
     return shader;
   }
 };

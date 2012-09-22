@@ -49,6 +49,8 @@ NaClApplication::NaClApplication(NaClLogType log_type,
     : pp::Instance(pp_instance),
       destroy_(false) {
 
+  Furai::APP = this;
+
   started_ = false;
   switch (log_type) {
     case NACL_LOG_TYPE_JS_CONSOLE:
@@ -61,6 +63,7 @@ NaClApplication::NaClApplication(NaClLogType log_type,
       this->log_ = new NaClLogJSConsole(this);
       break;
   }
+
   Furai::LOG = this->log_;
   Furai::LOG->LogV("NA: Starting internal systems..");
 
@@ -84,21 +87,21 @@ NaClApplication::~NaClApplication() {
 
   this->destroy_ = true;
 
-  //pthread_join(thread_mainloop_, NULL);
+  pthread_join(thread_mainloop_, NULL);
 
   delete this->window_;
   delete this->clock_;
   delete this->file_system_;
-  delete this->log_;
   delete this->main_thread_calls_;
+  delete this->log_;
 }
 
 bool NaClApplication::Init(uint32_t argc, const char* argn[],
                            const char* argv[]) {
 
-  NaClWindow* window = static_cast<NaClWindow*>(this->window_);
-
   this->pp_core_ = pp::Module::Get()->core();
+
+  NaClWindow* window = static_cast<NaClWindow*>(this->window_);
 
   NaClMainThreadCalls* main_thread_calls = new NaClMainThreadCalls(
       this->pp_core_, window);
@@ -131,18 +134,18 @@ void NaClApplication::Update() {
   this->UpdateScheduler(0);
 }
 
-void Lala(void* data, int32_t result) {
-  NaClApplication* app = static_cast<NaClApplication*>(data);
-  app->PostMessage("DONE!\n\n");
-}
-
 void* NaClApplication::MainLoop(void* data) {
-  //Furai::LOG->LogV("NA: MainLoop Thread Started...");
+
+  Furai::LOG->LogV("NA: MainLoop Thread Started...");
+
   NaClApplication* app = static_cast<NaClApplication*>(data);
-  app->pp_core_->CallOnMainThread(0, pp::CompletionCallback(&Lala, app));
 
   //app->window_->Start();
-  app->window_->window_listener()->OnStart();
+  if (app->window_ == NULL || app->window_->window_listener() == NULL) {
+    Furai::LOG->LogE("NA MainLoop: window == NULL || window_listener_ == NULL");
+  } else {
+    app->window_->window_listener()->OnStart();
+  }
 
   //while (!app->destroy_) {
   //app->window_->Draw();

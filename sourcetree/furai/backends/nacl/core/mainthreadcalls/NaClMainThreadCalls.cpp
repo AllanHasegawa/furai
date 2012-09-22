@@ -39,7 +39,7 @@ NaClMainThreadCalls::NaClMainThreadCalls(pp::Core* pp_core, NaClWindow* window)
   pthread_cond_init(&cond_waiting_callback_, NULL);
   pthread_mutex_init(&mutex_waiting_callback_, NULL);
 
-  this->gl_void_functions_buffer_ =
+  gl_void_functions_buffer_ =
       new std::tr1::function<void()>[kMaxGLVoidFunctions_];
 }
 
@@ -73,7 +73,7 @@ void NaClMainThreadCalls::SyncGLVoidFunctions() {
   waiting_callback_ = true;
 
   pp::CompletionCallback kGLVoidFunctionCallback = pp_callback_factory_
-      .NewCallback(&furai::NaClMainThreadCalls::CallGLVoidFunctionsCallback);
+      .NewCallback(&furai::NaClMainThreadCalls::CallGLvoidFunctionsCallback);
   this->pp_core_->CallOnMainThread(0, kGLVoidFunctionCallback, 0);
 
   while (waiting_callback_) {
@@ -82,153 +82,86 @@ void NaClMainThreadCalls::SyncGLVoidFunctions() {
   pthread_mutex_lock(&mutex_waiting_callback_);
 }
 
-//inline void NaClMainThreadCalls::CallGLVoidFunction();
-
-GLenum NaClMainThreadCalls::CallGLenumFunction(
-    std::tr1::function<GLenum()>& f) {
-  pthread_mutex_lock(&mutex_waiting_callback_);
-  gl_enum_func_pointer_ = &f;
-  waiting_callback_ = true;
-
-  pp::CompletionCallback kGLenumFunctionCallback = pp_callback_factory_
-      .NewCallback(&NaClMainThreadCalls::CallGLenumFunctionCallback);
-  this->pp_core_->CallOnMainThread(0, kGLenumFunctionCallback, 0);
-
-  while (waiting_callback_) {
-    pthread_cond_wait(&cond_waiting_callback_, &mutex_waiting_callback_);
-  }
-  pthread_mutex_lock(&mutex_waiting_callback_);
-
-  return ret_value_gl_enum_;
-}
-
-
-GLint NaClMainThreadCalls::CallGLintFunction(
-    std::tr1::function<GLint()>& f) {
-  pthread_mutex_lock(&mutex_waiting_callback_);
-  gl_int_func_pointer_ = &f;
-  waiting_callback_ = true;
-
-  pp::CompletionCallback kGLintFunctionCallback = pp_callback_factory_
-      .NewCallback(&NaClMainThreadCalls::CallGLIntFunctionCallback);
-  this->pp_core_->CallOnMainThread(0, kGLintFunctionCallback, 0);
-
-  while (waiting_callback_) {
-    pthread_cond_wait(&cond_waiting_callback_, &mutex_waiting_callback_);
-  }
-  pthread_mutex_lock(&mutex_waiting_callback_);
-
-  return ret_value_gl_int_;
-}
-
-GLuint NaClMainThreadCalls::CallGLuintFunction(
-    std::tr1::function<GLuint()>& f) {
-  pthread_mutex_lock(&mutex_waiting_callback_);
-  gl_uint_func_pointer_ = &f;
-  waiting_callback_ = true;
-
-  pp::CompletionCallback kGLuintFunctionCallback = pp_callback_factory_
-      .NewCallback(&NaClMainThreadCalls::CallGLuintFunctionCallback);
-  this->pp_core_->CallOnMainThread(0, kGLuintFunctionCallback, 0);
-
-  while (waiting_callback_) {
-    pthread_cond_wait(&cond_waiting_callback_, &mutex_waiting_callback_);
-  }
-  pthread_mutex_lock(&mutex_waiting_callback_);
-
-  return ret_value_gl_uint_;
-}
-
-GLboolean NaClMainThreadCalls::CallGLbooleanFunction(
-    auto f) {
-  pthread_mutex_lock(&mutex_waiting_callback_);
-  gl_boolean_func_pointer_ = &f;
-  waiting_callback_ = true;
-
-  pp::CompletionCallback kGLbooleanFunctionCallback = pp_callback_factory_
-      .NewCallback(&NaClMainThreadCalls::CallGLbooleanFunctionCallback);
-  this->pp_core_->CallOnMainThread(0, kGLbooleanFunctionCallback, 0);
-
-  while (waiting_callback_) {
-    pthread_cond_wait(&cond_waiting_callback_, &mutex_waiting_callback_);
-  }
-  pthread_mutex_lock(&mutex_waiting_callback_);
-
-  return ret_value_gl_boolean_;
-}
-
-void NaClMainThreadCalls::CallGLVoidFunctionsCallback(int32_t result) {
+void NaClMainThreadCalls::CallGLvoidFunctionsCallback(int32_t result) {
   pthread_mutex_lock(&mutex_waiting_callback_);
   const int n = number_gl_void_functions_;
-  const std::tr1::function<void()>* fs = gl_void_functions_buffer_;
+
   for (int i = 0; i < n; i++) {
-    fs[i]();
+    gl_void_functions_buffer_[i]();
   }
+
   number_gl_void_functions_ = 0;
   waiting_callback_ = false;
   pthread_cond_signal(&cond_waiting_callback_);
   pthread_mutex_lock(&mutex_waiting_callback_);
 }
 
-void NaClMainThreadCalls::CallGLenumFunctionCallback(int32_t result) {
+void NaClMainThreadCalls::CallGLintFunctionCallback(
+    int32_t result, int& return_value, const std::tr1::function<int()>& f) {
   pthread_mutex_lock(&mutex_waiting_callback_);
 
   const int n = number_gl_void_functions_;
-  const std::tr1::function<void()>* fs = gl_void_functions_buffer_;
+
   for (int i = 0; i < n; i++) {
-    fs[i]();
+    gl_void_functions_buffer_[i]();
   }
   number_gl_void_functions_ = 0;
 
-  ret_value_gl_enum_ = (*gl_enum_func_pointer_)();
+  return_value = f();
   waiting_callback_ = false;
   pthread_cond_signal(&cond_waiting_callback_);
   pthread_mutex_lock(&mutex_waiting_callback_);
 }
 
-void NaClMainThreadCalls::CallGLIntFunctionCallback(int32_t result) {
+void NaClMainThreadCalls::CallGLenumFunctionCallback(
+    int32_t result, GLenum& return_value,
+    const std::tr1::function<GLenum()>& f) {
   pthread_mutex_lock(&mutex_waiting_callback_);
 
   const int n = number_gl_void_functions_;
-  const std::tr1::function<void()>* fs = gl_void_functions_buffer_;
+
   for (int i = 0; i < n; i++) {
-    fs[i]();
+    gl_void_functions_buffer_[i]();
   }
   number_gl_void_functions_ = 0;
 
-  ret_value_gl_int_ = (*gl_int_func_pointer_)();
+  return_value = f();
   waiting_callback_ = false;
   pthread_cond_signal(&cond_waiting_callback_);
   pthread_mutex_lock(&mutex_waiting_callback_);
 }
 
-void NaClMainThreadCalls::CallGLuintFunctionCallback(int32_t result) {
+void NaClMainThreadCalls::CallGLuintFunctionCallback(
+    int32_t result, GLuint& return_value,
+    const std::tr1::function<GLuint()>& f) {
   pthread_mutex_lock(&mutex_waiting_callback_);
 
   const int n = number_gl_void_functions_;
-  const std::tr1::function<void()>* fs = gl_void_functions_buffer_;
+
   for (int i = 0; i < n; i++) {
-    fs[i]();
+    gl_void_functions_buffer_[i]();
   }
   number_gl_void_functions_ = 0;
 
-  ret_value_gl_uint_ = (*gl_uint_func_pointer_)();
+  return_value = f();
   waiting_callback_ = false;
   pthread_cond_signal(&cond_waiting_callback_);
   pthread_mutex_lock(&mutex_waiting_callback_);
 }
 
-void NaClMainThreadCalls::CallGLbooleanFunctionCallback(int32_t result) {
+void NaClMainThreadCalls::CallGLbooleanFunctionCallback(
+    int32_t result, GLboolean& return_value,
+    const std::tr1::function<GLboolean()>& f) {
   pthread_mutex_lock(&mutex_waiting_callback_);
 
   const int n = number_gl_void_functions_;
-  const std::tr1::function<void()>* fs = gl_void_functions_buffer_;
+
   for (int i = 0; i < n; i++) {
-    fs[i]();
+    gl_void_functions_buffer_[i]();
   }
   number_gl_void_functions_ = 0;
 
-  ret_value_gl_boolean_ = (*gl_boolean_func_pointer_)();
+  return_value = f();
   waiting_callback_ = false;
   pthread_cond_signal(&cond_waiting_callback_);
   pthread_mutex_lock(&mutex_waiting_callback_);
@@ -238,9 +171,8 @@ void NaClMainThreadCalls::CallGLContextFlushCallback(int32_t result) {
   pthread_mutex_lock(&mutex_waiting_callback_);
 
   const int n = number_gl_void_functions_;
-  const std::tr1::function<void()>* fs = gl_void_functions_buffer_;
   for (int i = 0; i < n; i++) {
-    fs[i]();
+    gl_void_functions_buffer_[i]();
   }
   number_gl_void_functions_ = 0;
 
