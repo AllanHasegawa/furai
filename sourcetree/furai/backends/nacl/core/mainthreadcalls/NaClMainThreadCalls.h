@@ -43,159 +43,28 @@ class Core;
 
 namespace furai {
 
-/*
-
- class NaClVoidFunctionHandlerInterface {
- public:
- virtual ~NaClVoidFunctionHandlerInterface() {
-
- }
- virtual void Run() = 0;
- };
-
- template <class R, class... Args>
- class NaClVoidFunctionHandler : public NaClVoidFunctionHandlerInterface {
- public:
- std::tr1::function<R(Args...)> function_;
-
- NaClVoidFunctionHandler() {
-
- }
-
- virtual ~NaClVoidFunctionHandler() {
-
- }
-
- void set_function(std::tr1::function<R(Args...)> function) {
- function_ = function;
- }
-
- void Run() {
- //(*function_)();
- }
- };
-
- template<class R, class T>
- class NaClReturnFunctionHandler {
- public:
- std::tr1::function<R(T)> function_;
-
- NaClReturnFunctionHandler(std::tr1::function<R(T)>& function)
- : function_(function) {
-
- }
-
- virtual ~NaClReturnFunctionHandler() {
-
- }
-
- R run() {
- return function_();
- }
- };
+/**
+ * Ugly solution. Temporary until NaCl supports OpenGL context off-main thread.
  */
-
 class NaClMainThreadCalls {
  public:
-  NaClMainThreadCalls(pp::Core* pp_core, NaClWindow* window);
-
+  NaClMainThreadCalls(pp::Core* pp_core);
   virtual ~NaClMainThreadCalls();
 
-  //template<class R, class... Args>
-  void CallGLvoidFunction(std::tr1::function<void()> f) {
-    /*if (number_gl_void_functions_ == kMaxGLVoidFunctions_) {
-     SyncGLVoidFunctions();
-     }*/
-
-    //NaClVoidFunctionHandler<R(Args...)> f_h;
-    //f_h.set_function(f);
-    gl_void_functions_buffer_[number_gl_void_functions_] = f;
-    //gl_void_functions_buffer_.push_back(f_h);
-    ++number_gl_void_functions_;
-  }
-
-  int CallGLintFunction(const std::tr1::function<int()>& f) {
-    pthread_mutex_lock(&mutex_waiting_callback_);
-    waiting_callback_ = true;
-
-    int return_value;
-
-    pp::CompletionCallback kGLbooleanFunctionCallback = pp_callback_factory_
-        .NewCallback(&NaClMainThreadCalls::CallGLintFunctionCallback,
-                     return_value, f);
-    this->pp_core_->CallOnMainThread(0, kGLbooleanFunctionCallback, 0);
-
-    while (waiting_callback_) {
-      pthread_cond_wait(&cond_waiting_callback_, &mutex_waiting_callback_);
-    }
-
-    pthread_mutex_lock(&mutex_waiting_callback_);
-
-    return return_value;
-  }
-
-  GLenum CallGLenumFunction(const std::tr1::function<GLenum()>& f) {
-    pthread_mutex_lock(&mutex_waiting_callback_);
-    waiting_callback_ = true;
-
-    GLenum return_value;
-
-    pp::CompletionCallback kGLbooleanFunctionCallback = pp_callback_factory_
-        .NewCallback(&NaClMainThreadCalls::CallGLenumFunctionCallback,
-                     return_value, f);
-    this->pp_core_->CallOnMainThread(0, kGLbooleanFunctionCallback, 0);
-
-    while (waiting_callback_) {
-      pthread_cond_wait(&cond_waiting_callback_, &mutex_waiting_callback_);
-    }
-
-    pthread_mutex_lock(&mutex_waiting_callback_);
-
-    return return_value;
-  }
-
-  GLuint CallGLuintFunction(const std::tr1::function<GLuint()>& f) {
-    pthread_mutex_lock(&mutex_waiting_callback_);
-    waiting_callback_ = true;
-
-    GLuint return_value;
-
-    pp::CompletionCallback kGLbooleanFunctionCallback = pp_callback_factory_
-        .NewCallback(&NaClMainThreadCalls::CallGLuintFunctionCallback,
-                     return_value, f);
-    this->pp_core_->CallOnMainThread(0, kGLbooleanFunctionCallback, 0);
-
-    while (waiting_callback_) {
-      pthread_cond_wait(&cond_waiting_callback_, &mutex_waiting_callback_);
-    }
-
-    pthread_mutex_lock(&mutex_waiting_callback_);
-
-    return return_value;
-  }
-
-  GLenum CallGLbooleanFunction(const std::tr1::function<GLboolean()>& f) {
-    pthread_mutex_lock(&mutex_waiting_callback_);
-    waiting_callback_ = true;
-
-    GLboolean return_value;
-
-    pp::CompletionCallback kGLbooleanFunctionCallback = pp_callback_factory_
-        .NewCallback(&NaClMainThreadCalls::CallGLbooleanFunctionCallback,
-                     return_value, f);
-    this->pp_core_->CallOnMainThread(0, kGLbooleanFunctionCallback, 0);
-
-    while (waiting_callback_) {
-      pthread_cond_wait(&cond_waiting_callback_, &mutex_waiting_callback_);
-    }
-
-    pthread_mutex_lock(&mutex_waiting_callback_);
-
-    return return_value;
-  }
+  void CallGLvoidFunction(const std::tr1::function<void()>& f);
+  int CallGLintFunction(const std::tr1::function<int()>& f);
+  GLenum CallGLenumFunction(const std::tr1::function<GLenum()>& f);
+  GLuint CallGLuintFunction(const std::tr1::function<GLuint()>& f);
+  GLboolean CallGLbooleanFunction(const std::tr1::function<GLboolean()>& f);
 
   void CallGLContextFlush();
   void SyncGLVoidFunctions();
+
+  void CallPostMessage(const std::string& message);
+
+  void set_window(NaClWindow* window) {
+    window_ = window;
+  }
 
  private:
   pp::Core* pp_core_;
@@ -204,26 +73,33 @@ class NaClMainThreadCalls {
   std::tr1::function<void()>* gl_void_functions_buffer_;
   int number_gl_void_functions_;
 
-  pp::CompletionCallbackFactory<NaClMainThreadCalls> pp_callback_factory_;
-
   pthread_cond_t cond_waiting_callback_;
   pthread_mutex_t mutex_waiting_callback_;
   bool waiting_callback_;
 
-  void* gl_return_func_pointer_;
-  GLboolean ret_value_gl_return_;
+  std::tr1::function<int()> gl_int_f_;
+  int gl_int_return_value_;
+  std::tr1::function<GLenum()> gl_enum_f_;
+  GLenum gl_enum_return_value_;
+  std::tr1::function<GLuint()> gl_uint_f_;
+  GLuint gl_uint_return_value_;
+  std::tr1::function<GLboolean()> gl_boolean_f_;
+  GLboolean gl_boolean_return_value_;
 
-  void CallGLintFunctionCallback(int32_t result, int& return_value,
-                                 const std::tr1::function<int()>& f);
-  void CallGLenumFunctionCallback(int32_t result, GLenum& return_value,
-                                  const std::tr1::function<GLenum()>& f);
-  void CallGLuintFunctionCallback(int32_t result, GLuint& return_value,
-                                  const std::tr1::function<GLuint()>& f);
-  void CallGLbooleanFunctionCallback(int32_t result, GLboolean& return_value,
-                                     const std::tr1::function<GLboolean()>& f);
+  int number_post_messages_;
+  std::string* post_message_buffer_;
+  const int kMaxPostMessages_;
+  bool post_message_sync_pending_;
 
-  void CallGLvoidFunctionsCallback(int32_t result);
-  void CallGLContextFlushCallback(int32_t result);
+  static void CallGLvoidFunctionsCallback(void* data, int32_t result);
+  static void CallGLintFunctionCallback(void* data, int32_t result);
+  static void CallGLenumFunctionCallback(void* data, int32_t result);
+  static void CallGLuintFunctionCallback(void* data, int32_t result);
+  static void CallGLbooleanFunctionCallback(void* data, int32_t result);
+
+  static void CallGLContextFlushCallback(void* data, int32_t result);
+
+  static void CallPostMessageCallback(void* data, int32_t result);
 
 };
 

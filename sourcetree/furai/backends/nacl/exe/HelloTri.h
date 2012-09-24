@@ -32,6 +32,7 @@
 #include <furai/backends/nacl/core/NaClApplication.h>
 #include <furai/core/WindowListener.h>
 #include <furai/core/Furai.h>
+#include <furai/backends/nacl/core/NaClFurai.h>
 
 class HelloTriangle : public furai::WindowListener {
  public:
@@ -43,21 +44,11 @@ class HelloTriangle : public furai::WindowListener {
 
   }
 
-  static void Lalu(void* data, int32_t result) {
-    using namespace furai;
-    NaClApplication* app = static_cast<NaClApplication*>(furai::Furai::APP);
-    app->PostMessage("DON!!!!!!!E!\n\n");
-  }
-
   virtual void OnStart() {
     using namespace furai;
 
-    //Furai::LOG->LogV("HT: Start");
-    NaClApplication* app = static_cast<NaClApplication*>(Furai::APP);
-    pp::Module::Get()->core()->CallOnMainThread(
-        0, pp::CompletionCallback(&Lalu, app));
+    Furai::LOG->LogV("HT: Start");
 
-    //Furai::LOG->LogV("HT: OnStart");
     //InternalFile* file = Furai::FS->Internal("geturl_success.html");
     //file->Open();
 
@@ -110,64 +101,71 @@ class HelloTriangle : public furai::WindowListener {
 
     this->counter_ = 0;
 
-    /*
-     GLchar vShaderStr[] = "attribute vec4 vPosition; \n"
-     "void main() \n"
-     "{ \n"
-     " gl_Position = vPosition; \n"
-     "} \n";
-     GLchar fShaderStr[] = "precision mediump float; \n"
-     "void main() \n"
-     "{ \n"
-     " gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); \n"
-     "} \n";
-     GLuint vertexShader;
-     GLuint fragmentShader;
-     //GLuint programObject;
-     //GLint linked;
+    GLchar vShaderStr[] = "attribute vec4 vPosition; \n"
+        "void main() \n"
+        "{ \n"
+        " gl_Position = vPosition; \n"
+        "} \n";
 
-     // Load the vertex/fragment shaders
-     vertexShader = this->LoadShader(vShaderStr, GL_VERTEX_SHADER);
-     fragmentShader = this->LoadShader(fShaderStr, GL_FRAGMENT_SHADER);
-     / ****
-     // Create the program object
-     programObject = glCreateProgram();
-     if (programObject == 0)
-     return;  // 0;
-     glAttachShader(programObject, vertexShader);
-     glAttachShader(programObject, fragmentShader);
-     // Bind vPosition to attribute 0
-     glBindAttribLocation(programObject, 0, "vPosition");
-     // Link the program
-     glLinkProgram(programObject);
-     // Check the link status
-     glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
-     if (!linked) {
-     GLint infoLen = 0;
-     glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &infoLen);
-     if (infoLen > 1) {
-     char* infoLog = (char*) malloc(sizeof(char) * infoLen);
-     glGetProgramInfoLog(programObject, infoLen, NULL, infoLog);
-     //Furai::LOG->LogE("Error linking program:\n%s\n", infoLog);
-     free(infoLog);
-     }
-     glDeleteProgram(programObject);
-     return;
-     }
-     // Store the program object
-     this->programObject_ = programObject;*/
+    GLchar fShaderStr[] = "precision mediump float; \n"
+        "void main() \n"
+        "{ \n"
+        " gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); \n"
+        "} \n";
+    GLuint vertexShader;
+    GLuint fragmentShader;
+
+    // Load the vertex/fragment shaders
+    vertexShader = this->LoadShader(vShaderStr, GL_VERTEX_SHADER);
+    fragmentShader = this->LoadShader(fShaderStr, GL_FRAGMENT_SHADER);
+
+    Furai::LOG->LogV("VS: %d %d\n", vertexShader, fragmentShader);
+
+    GLuint programObject;
+    GLint linked;
+    // Create the program object
+    programObject = glCreateProgram();
+    if (programObject == 0)
+      return;  // 0;
+    glAttachShader(programObject, vertexShader);
+
+    furai::NaClFurai::NACL_MAIN_THREAD_CALLS->SyncGLVoidFunctions();
+    glAttachShader(programObject, fragmentShader);
+
+    furai::NaClFurai::NACL_MAIN_THREAD_CALLS->SyncGLVoidFunctions();
+    // Bind vPosition to attribute 0
+    glBindAttribLocation(programObject, 0, "vPosition");
+
+    furai::NaClFurai::NACL_MAIN_THREAD_CALLS->SyncGLVoidFunctions();
+    // Link the program
+    glLinkProgram(programObject);
+
+    furai::NaClFurai::NACL_MAIN_THREAD_CALLS->SyncGLVoidFunctions();
+    // Check the link status
+    glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
+    if (!linked) {
+      GLint infoLen = 0;
+      glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &infoLen);
+      if (infoLen > 1) {
+        char* infoLog = (char*) malloc(sizeof(char) * infoLen);
+        glGetProgramInfoLog(programObject, infoLen, NULL, infoLog);
+        Furai::LOG->LogE("Error linking program:\n%s\n", infoLog);
+        free(infoLog);
+      }
+      glDeleteProgram(programObject);
+      return;
+    }
+    // Store the program object
+    this->programObject_ = programObject;
   }
 
   virtual void OnDraw(const double delta_time) {
     // Not nice to log every frame :3
     this->counter_ += delta_time;
     if (this->counter_ > 3000) {
-      //furai::Furai::LOG->LogI("Delta: %g\n", delta_time);
+      furai::Furai::LOG->LogI("Delta: %g\n", delta_time);
       this->counter_ = 0;
     }
-
-    /*
-     glClear(GL_COLOR_BUFFER_BIT);
 
      GLfloat vVertices[] = { 0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
      0.0f };
@@ -178,12 +176,12 @@ class HelloTriangle : public furai::WindowListener {
      // Load the vertex data
      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
      glEnableVertexAttribArray(0);
-     glDrawArrays(GL_TRIANGLES, 0, 3);*/
+     glDrawArrays(GL_TRIANGLES, 0, 3);
   }
 
   virtual void OnResize(const GLint width, const GLint height) {
-    //furai::Furai::LOG->LogV("Resized %d / %d\n", width, height);
-    glViewport(0, 0, width, height);
+    furai::Furai::LOG->LogV("Resized %d / %d\n", width, height);
+    ::GLES2Viewport(0, 0, width, height);
   }
 
   virtual void OnDestroy() {
@@ -191,11 +189,10 @@ class HelloTriangle : public furai::WindowListener {
   }
 
   virtual void OnFocusGained() {
-    using namespace furai;
-    //furai::Furai::LOG->LogV("OnFocusGained\n");
+    furai::Furai::LOG->LogV("OnFocusGained\n");
   }
   virtual void OnFocusLost() {
-    //furai::Furai::LOG->LogV("OnFocusLost\n");
+    furai::Furai::LOG->LogV("OnFocusLost\n");
   }
 
  private:
@@ -206,17 +203,23 @@ class HelloTriangle : public furai::WindowListener {
     using namespace furai;
 
     GLuint shader;
-    //GLint compiled;
     // Create the shader object
     shader = glCreateShader(type);
-    if (shader == 0)
+    if (shader == 0) {
+      Furai::LOG->LogE("Error glCreateShader");
       return 0;
-    /*
+    }
     // Load the shader source
     glShaderSource(shader, 1, &shaderSrc, NULL);
+
+    furai::NaClFurai::NACL_MAIN_THREAD_CALLS->SyncGLVoidFunctions();
     // Compile the shader
     glCompileShader(shader);
+
+    furai::NaClFurai::NACL_MAIN_THREAD_CALLS->SyncGLVoidFunctions();
     // Check the compile status
+
+    GLint compiled;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
     if (!compiled) {
       GLint infoLen = 0;
@@ -224,12 +227,12 @@ class HelloTriangle : public furai::WindowListener {
       if (infoLen > 1) {
         char* infoLog = (char*) malloc(sizeof(char) * infoLen);
         glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-        //Furai::LOG->LogE("Error compiling shader:\n%s\n", infoLog);
+        Furai::LOG->LogE("Error compiling shader:\n%s\n", infoLog);
         free(infoLog);
       }
       glDeleteShader(shader);
       return 0;
-    }*/
+    }
     return shader;
   }
 };

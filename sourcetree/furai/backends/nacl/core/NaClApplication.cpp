@@ -51,16 +51,23 @@ NaClApplication::NaClApplication(NaClLogType log_type,
 
   Furai::APP = this;
 
+  this->pp_core_ = pp::Module::Get()->core();
+
+  NaClMainThreadCalls* main_thread_calls = new NaClMainThreadCalls(
+      this->pp_core_);
+  this->main_thread_calls_ = main_thread_calls;
+  furai::NaClFurai::NACL_MAIN_THREAD_CALLS = main_thread_calls;
+
   started_ = false;
   switch (log_type) {
     case NACL_LOG_TYPE_JS_CONSOLE:
-      this->log_ = new NaClLogJSConsole(this);
+      this->log_ = new NaClLogJSConsole(main_thread_calls);
       break;
     case NACL_LOG_TYPE_ENV_VARS:
       this->log_ = new NaClLogEnvVars();
       break;
     default:
-      this->log_ = new NaClLogJSConsole(this);
+      this->log_ = new NaClLogJSConsole(main_thread_calls);
       break;
   }
 
@@ -78,9 +85,11 @@ NaClApplication::NaClApplication(NaClLogType log_type,
   Furai::FS = nacl_filesystem;
 
   Furai::LOG->LogV("NA: Starting Window system..");
-  this->window_ = new NaClWindow(this, nacl_clock, window_listener);
+  NaClWindow* window = new NaClWindow(this, nacl_clock, window_listener);
+  this->window_ = window;
   Furai::WINDOW = this->window_;
 
+  this->main_thread_calls_->set_window(window);
 }
 
 NaClApplication::~NaClApplication() {
@@ -99,14 +108,7 @@ NaClApplication::~NaClApplication() {
 bool NaClApplication::Init(uint32_t argc, const char* argn[],
                            const char* argv[]) {
 
-  this->pp_core_ = pp::Module::Get()->core();
-
   NaClWindow* window = static_cast<NaClWindow*>(this->window_);
-
-  NaClMainThreadCalls* main_thread_calls = new NaClMainThreadCalls(
-      this->pp_core_, window);
-  this->main_thread_calls_ = main_thread_calls;
-  furai::NaClFurai::NACL_MAIN_THREAD_CALLS = main_thread_calls;
 
   window->set_main_thread_calls(this->main_thread_calls_);
 
@@ -140,16 +142,17 @@ void* NaClApplication::MainLoop(void* data) {
 
   NaClApplication* app = static_cast<NaClApplication*>(data);
 
-  //app->window_->Start();
   if (app->window_ == NULL || app->window_->window_listener() == NULL) {
     Furai::LOG->LogE("NA MainLoop: window == NULL || window_listener_ == NULL");
+    pthread_exit(NULL);
+    return NULL;
   } else {
     app->window_->window_listener()->OnStart();
   }
 
-  //while (!app->destroy_) {
-  //app->window_->Draw();
-  //}
+  while (!app->destroy_) {
+    app->window_->Draw();
+  }
 
   pthread_exit(NULL);
   return NULL;

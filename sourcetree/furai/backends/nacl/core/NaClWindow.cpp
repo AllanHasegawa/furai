@@ -58,7 +58,7 @@ void NaClWindow::Start() {
     return;
   }
 
-  glClearColor(0.3f, 0.3f, 0.3f, 1.f);
+  ::GLES2ClearColor(0.3f, 0.3f, 0.3f, 1.f);
 
   //this->window_listener_->OnStart();
 }
@@ -80,7 +80,7 @@ void NaClWindow::Resize(const GLint width, const GLint height) {
   if (!opengl_context_->MakeContextCurrent(this->pp_instance_))
     return;
 
-  glViewport(0, 0, width, height);
+  ::GLES2Viewport(0, 0, width, height);
 
   this->window_listener_->OnResize(width, height);
 }
@@ -99,8 +99,8 @@ void NaClWindow::Draw() {
   delta_t = time_now - this->time_holder;
   this->time_holder = time_now;
 
-  this->main_thread_calls_->CallGLContextFlush();
   this->window_listener_->OnDraw(delta_t);
+  this->main_thread_calls_->CallGLContextFlush();
 
   ++this->frames_;
   // Every second update "fps_"

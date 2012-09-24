@@ -26,15 +26,13 @@
 
 namespace furai {
 
-NaClLogJSConsole::NaClLogJSConsole(pp::Instance* pp_instance)
-    : pp_cc_factory_(this),
+NaClLogJSConsole::NaClLogJSConsole(NaClMainThreadCalls* nacl_main_thread_calls)
+    : nacl_main_thread_calls_(nacl_main_thread_calls),
       kLogErrorTag_("[LOG|E] "),
       kLogInfoTag_("[LOG|I] "),
       kLogVerboseTag_("[LOG|V] ") {
   this->log_level_ = LOG_VERBOSE;
   this->buffer_ = new char[5000];
-  this->pp_instance_ = pp_instance;
-  this->pp_core_ = pp::Module::Get()->core();
 }
 
 NaClLogJSConsole::~NaClLogJSConsole() {
