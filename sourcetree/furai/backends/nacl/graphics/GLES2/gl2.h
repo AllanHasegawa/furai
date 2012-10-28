@@ -28,6 +28,8 @@
 #ifndef FURAI_GL2_H_
 #define FURAI_GL2_H_
 
+#ifdef NACL
+
 #include <GLES2/gl2.h>
 
 #undef glActiveTexture
@@ -511,5 +513,7 @@ void GLES2VertexAttribPointer(GLuint indx, GLint size, GLenum type,
                               const GLvoid* ptr);
 void GLES2Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
 }  //namespace
+
+#endif /* NACL */
 
 #endif /* FURAI_GL2_H_ */
