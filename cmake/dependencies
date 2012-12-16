@@ -1,0 +1,1 @@
+Verify default include path: clang++ -v -xc++ -

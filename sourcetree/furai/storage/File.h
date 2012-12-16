@@ -24,6 +24,7 @@
 #ifndef FURAI_FILE_H_
 #define FURAI_FILE_H_
 
+#include <stdint.h>
 #include <string>
 
 namespace furai {
