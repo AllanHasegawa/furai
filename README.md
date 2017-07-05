@@ -1,6 +1,8 @@
 furai
 =====
 
+*Ps.:* The code is in the **devel** branch.
+
 Furai was my Bachelor Final Project. The goal was to make a cross-platform, high performance, low level, game engine written in C++; with a well planned and documented architecture.
 
 At the time, the plan was to target the Android (with NDK) and the web with NaCL. The project worked! It was pretty fast. In a biased benchmark, much faster than LibGDX :)
